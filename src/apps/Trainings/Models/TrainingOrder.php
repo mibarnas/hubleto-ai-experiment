@@ -96,7 +96,15 @@ class TrainingOrder extends \Hubleto\Erp\Model
   public function onAfterCreate(array $savedRecord): array
   {
     $savedRecord = parent::onAfterCreate($savedRecord);
-    $this->notifyAdministrators((int) $savedRecord['id']);
+
+    // Notifying admins is a side effect of placing an order, never a reason to
+    // reject one -- an unconfigured mail account must not fail the save.
+    try {
+      $this->notifyAdministrators((int) $savedRecord['id']);
+    } catch (\Throwable $e) {
+      $this->logger()->error('Failed to notify administrators about a new training order: ' . $e->getMessage());
+    }
+
     return $savedRecord;
   }
 

@@ -329,7 +329,10 @@ eval("{/* (ignored) */\n\n//# sourceURL=webpack://@hubleto/project/./util.inspec
 /******/ 	__webpack_require__.O(undefined, ["react-ui-vendor","apps","react-ui-core","react-ui-ext"], () => (__webpack_require__("./vendor/hubleto/erp/apps/Tasks/Loader.tsx")))
 /******/ 	__webpack_require__.O(undefined, ["react-ui-vendor","apps","react-ui-core","react-ui-ext"], () => (__webpack_require__("./vendor/hubleto/erp/apps/Usage/Loader.tsx")))
 /******/ 	__webpack_require__.O(undefined, ["react-ui-vendor","apps","react-ui-core","react-ui-ext"], () => (__webpack_require__("./vendor/hubleto/erp/apps/Workflow/Loader.tsx")))
-/******/ 	let __webpack_exports__ = __webpack_require__.O(undefined, ["react-ui-vendor","apps","react-ui-core","react-ui-ext"], () => (__webpack_require__("./vendor/hubleto/erp/apps/Worksheets/Loader.tsx")))
+/******/ 	__webpack_require__.O(undefined, ["react-ui-vendor","apps","react-ui-core","react-ui-ext"], () => (__webpack_require__("./vendor/hubleto/erp/apps/Worksheets/Loader.tsx")))
+/******/ 	__webpack_require__.O(undefined, ["react-ui-vendor","apps","react-ui-core","react-ui-ext"], () => (__webpack_require__("./src/apps/Certificates/Loader.tsx")))
+/******/ 	__webpack_require__.O(undefined, ["react-ui-vendor","apps","react-ui-core","react-ui-ext"], () => (__webpack_require__("./src/apps/Trainings/Loader.tsx")))
+/******/ 	let __webpack_exports__ = __webpack_require__.O(undefined, ["react-ui-vendor","apps","react-ui-core","react-ui-ext"], () => (__webpack_require__("./src/apps/Workers/Loader.tsx")))
 /******/ 	__webpack_exports__ = __webpack_require__.O(__webpack_exports__);
 /******/ 	
 /******/ })()

@@ -1,15 +1,31 @@
-// How to add any React Component to be usable in Twig templates as '<hblreact-*></hblreact-*>' HTML tag.
-// -> Replace 'MyModel' with the name of your model in the examples below
+import App from '@hubleto/react-ui/core/App'
 
-// 1. import the component
-// import TableMyModel from "./Components/TableMyModel"
+import TableTrainings from "./Components/TableTrainings"
+import FormTraining from "./Components/FormTraining"
+import TableTrainingDates from "./Components/TableTrainingDates"
+import FormTrainingDate from "./Components/FormTrainingDate"
+import TableApplicants from "./Components/TableApplicants"
+import FormApplicant from "./Components/FormApplicant"
+import TableTrainingOrders from "./Components/TableTrainingOrders"
+import FormTrainingOrder from "./Components/FormTrainingOrder"
+import TableQuestionnaireAnswers from "./Components/TableQuestionnaireAnswers"
+import FormQuestionnaireAnswer from "./Components/FormQuestionnaireAnswer"
 
-// 2. Register the React Component into Hubleto framework
-// globalThis.hubleto.registerReactComponent('TrainingsTableMyModel', TableMyModel);
+class TrainingsApp extends App {
+  init() {
+    super.init();
 
-// 3. Use the component in any of your Twig views:
-// <hblreact-trainings-table-my-model string:some-property="some-value"></hblreact-trainings-table-my-model>
+    globalThis.hubleto.registerReactComponent('TrainingsTableTrainings', TableTrainings);
+    globalThis.hubleto.registerReactComponent('TrainingsFormTraining', FormTraining);
+    globalThis.hubleto.registerReactComponent('TrainingsTableTrainingDates', TableTrainingDates);
+    globalThis.hubleto.registerReactComponent('TrainingsFormTrainingDate', FormTrainingDate);
+    globalThis.hubleto.registerReactComponent('TrainingsTableApplicants', TableApplicants);
+    globalThis.hubleto.registerReactComponent('TrainingsFormApplicant', FormApplicant);
+    globalThis.hubleto.registerReactComponent('TrainingsTableTrainingOrders', TableTrainingOrders);
+    globalThis.hubleto.registerReactComponent('TrainingsFormTrainingOrder', FormTrainingOrder);
+    globalThis.hubleto.registerReactComponent('TrainingsTableQuestionnaireAnswers', TableQuestionnaireAnswers);
+    globalThis.hubleto.registerReactComponent('TrainingsFormQuestionnaireAnswer', FormQuestionnaireAnswer);
+  }
+}
 
-//@hubleto-cli:imports
-
-//@hubleto-cli:register-components
+globalThis.hubleto.registerApp('Hubleto/App/Custom/Trainings', new TrainingsApp());

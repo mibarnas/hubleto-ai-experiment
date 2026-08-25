@@ -1,15 +1,15 @@
-// How to add any React Component to be usable in Twig templates as '<hblreact-*></hblreact-*>' HTML tag.
-// -> Replace 'MyModel' with the name of your model in the examples below
+import App from '@hubleto/react-ui/core/App'
 
-// 1. import the component
-// import TableMyModel from "./Components/TableMyModel"
+import TableWorkers from "./Components/TableWorkers"
+import FormWorker from "./Components/FormWorker"
 
-// 2. Register the React Component into Hubleto framework
-// globalThis.hubleto.registerReactComponent('WorkersTableMyModel', TableMyModel);
+class WorkersApp extends App {
+  init() {
+    super.init();
 
-// 3. Use the component in any of your Twig views:
-// <hblreact-workers-table-my-model string:some-property="some-value"></hblreact-workers-table-my-model>
+    globalThis.hubleto.registerReactComponent('WorkersTableWorkers', TableWorkers);
+    globalThis.hubleto.registerReactComponent('WorkersFormWorker', FormWorker);
+  }
+}
 
-//@hubleto-cli:imports
-
-//@hubleto-cli:register-components
+globalThis.hubleto.registerApp('Hubleto/App/Custom/Workers', new WorkersApp());

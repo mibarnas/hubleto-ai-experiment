@@ -13,4 +13,17 @@ class QuestionnaireAnswer extends \Hubleto\Erp\RecordManager
     return $this->belongsTo(Applicant::class, 'id_applicant', 'id');
   }
 
+  public function prepareReadQuery(mixed $query = null, int $level = 0, array|null $includeRelations = null): mixed
+  {
+    $query = parent::prepareReadQuery($query, $level, $includeRelations);
+
+    $hubleto = \Hubleto\Erp\Loader::getGlobalApp();
+
+    if ($hubleto->router()->urlParamAsInteger('idApplicant') > 0) {
+      $query = $query->where($this->table . '.id_applicant', $hubleto->router()->urlParamAsInteger('idApplicant'));
+    }
+
+    return $query;
+  }
+
 }
