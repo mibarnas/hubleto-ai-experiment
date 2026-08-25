@@ -151,3 +151,9 @@ The Contact section serves to store information regarding the person who created
 - phone number
 - email
 ```
+
+## Plan execution - Sonnet 5 (High) 
+
+```md
+execute the plan
+```
