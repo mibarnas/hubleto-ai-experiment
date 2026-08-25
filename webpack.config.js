@@ -71,12 +71,10 @@ module.exports = (env, arg) => {
     resolve: {
       modules: [
         path.resolve(__dirname, './node_modules'),
-        path.resolve(__dirname, '../hubleto/src/react-ui/node_modules'),
+        path.resolve(__dirname, '../hubleto/react-ui/node_modules'),
       ],
       extensions: ['.js', '.jsx', '.ts', '.tsx', '.scss', '.css'],
       alias: {
-        '@hubleto/ui/core': path.resolve(__dirname, 'vendor/hubleto/framework/src/Components/Core'),
-        '@hubleto/ui/ext': path.resolve(__dirname, 'vendor/hubleto/framework/src/Components/Ext'),
         '@hubleto/framework': path.resolve(__dirname, 'vendor/hubleto/framework'),
         '@hubleto/apps': path.resolve(__dirname, 'vendor/hubleto/erp/apps'),
       },

@@ -4,3 +4,4 @@ log
 composer.lock
 ConfigEnv.php
 upload
+node_modules

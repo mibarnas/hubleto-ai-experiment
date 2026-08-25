@@ -1,0 +1,55 @@
+<html>
+<head>
+  <title>{{ translate('Satisfaction questionnaire') }}</title>
+  <style>
+    * { font-family: verdana; box-sizing: border-box; }
+    body { background: #f3f4f6; margin: 0; }
+    .wrap { max-width: 700px; margin: 2em auto; padding: 2em; background: white; border-radius: 8px; }
+    h1 { font-size: 1.3em; }
+    .question { margin-bottom: 1.2em; }
+    .question label.title { display: block; margin-bottom: 0.4em; font-weight: bold; }
+    .scale { display: flex; gap: 1em; }
+    .scale label { display: flex; align-items: center; gap: 0.3em; }
+    textarea { width: 100%; min-height: 4em; padding: 0.5em; }
+    button { background: #2563eb; color: white; border: none; padding: 0.8em 1.5em; border-radius: 4px; font-size: 1em; cursor: pointer; }
+    .alert { padding: 1em; background: #d1fae5; border-radius: 4px; }
+    .alert-error { background: #fee2e2; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>{{ translate('Training satisfaction questionnaire') }}</h1>
+
+    {% if viewParams.error %}
+      <div class="alert alert-error">{{ viewParams.error }}</div>
+    {% elseif viewParams.alreadyFilled %}
+      <div class="alert">{{ translate('Thank you, your answers have already been recorded.') }}</div>
+    {% else %}
+      <form method="POST">
+        <input type="hidden" name="submitted" value="1" />
+        <input type="hidden" name="t" value="{{ viewParams.token }}" />
+
+        {% for code, label in viewParams.questions %}
+          <div class="question">
+            <label class="title">{{ label }}</label>
+            <div class="scale">
+              {% for i in 1..5 %}
+                <label><input type="radio" name="{{ code }}" value="{{ i }}" required /> {{ i }}</label>
+              {% endfor %}
+            </div>
+          </div>
+        {% endfor %}
+
+        {% for code, label in viewParams.freeTextQuestions %}
+          <div class="question">
+            <label class="title">{{ label }}</label>
+            <textarea name="{{ code }}"></textarea>
+          </div>
+        {% endfor %}
+
+        <button type="submit">{{ translate('Submit') }}</button>
+      </form>
+    {% endif %}
+  </div>
+</body>
+</html>

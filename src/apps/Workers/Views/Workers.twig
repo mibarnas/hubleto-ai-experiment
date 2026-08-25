@@ -1,0 +1,10 @@
+<h1 class="app-main-title">{{ translate('Workers') }}</h1>
+
+<hblreact-workers-table-workers
+  string:tag="table-workers"
+  int:record-id="{{ viewParams.recordId }}"
+  string:fulltext-search='{{ viewParams.q }}'
+  json:column-search='{{ viewParams.search|json_encode }}'
+  json:filters='{{ viewParams.filters|json_encode }}'
+  string:form-active-tab-uid='{{ viewParams.tab }}'
+></hblreact-workers-table-workers>

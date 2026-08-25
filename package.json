@@ -16,7 +16,7 @@
   "dependencies": {
     "@babel/preset-react": "^7.27.1",
     "@babel/preset-typescript": "^7.27.1",
-    "@hubleto/react-ui": "file:../hubleto/src/react-ui",
+    "@hubleto/react-ui": "file:../hubleto/react-ui",
     "babel-loader": "^10.0.0",
     "css-loader": "^7.1.2",
     "csstype": "^3.1.3",

@@ -1,0 +1,17 @@
+namespace: Hubleto\App\Custom\Trainings
+appType: custom
+monthlyPricePerUser: 0
+sidebarGroup: events
+rootUrlSlug: trainings
+name: Trainings
+icon: fas fa-chalkboard-user
+requires:
+  - Hubleto\App\Custom\Workers
+  - Hubleto\App\Community\Customers
+  - Hubleto\App\Community\Contacts
+  - Hubleto\App\Community\Settings
+author:
+  name: "AlgoCorp"
+  nick: "algocorp"
+highlight: Trainings, dates, applicants and orders for AlgoCorp trainings.
+created: 2026-08-25 09:34:25

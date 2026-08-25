@@ -1,0 +1,14 @@
+namespace: Hubleto\App\Custom\Workers
+appType: custom
+monthlyPricePerUser: 0
+sidebarGroup: events
+rootUrlSlug: workers
+name: Workers
+icon: fas fa-user-tie
+requires:
+  - Hubleto\App\Community\Customers
+author:
+  name: "AlgoCorp"
+  nick: "algocorp"
+highlight: Archive of workers registered for AlgoCorp trainings.
+created: 2026-08-25 09:34:14
