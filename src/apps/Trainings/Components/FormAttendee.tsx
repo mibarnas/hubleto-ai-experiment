@@ -123,11 +123,40 @@ export default class FormAttendee<P, S> extends FormExtended<FormAttendeeProps, 
     </ModalSimple>;
   }
 
+  /**
+   * The one-time link 404s by design once the questionnaire is submitted, so
+   * only offer it while it still works; afterwards link to the stored answers.
+   */
   renderQuestionnaireLink(): JSX.Element {
     const R = this.state.record;
-    if (!R.questionnaire_token) return <div className='badge badge-info'>{this.translate('Save the attendee to generate the link.')}</div>;
 
-    const url = R.url_questionnaire ?? (globalThis.hubleto.config.projectUrl + '/training-questionnaire?t=' + R.questionnaire_token);
+    if (R.date_questionnaire_filled) {
+      return <div>
+        <div className='badge badge-success'>
+          {this.translate('Submitted')}: {R.date_questionnaire_filled}
+        </div>
+        {R.id_questionnaire > 0
+          ? <a
+              className='btn btn-transparent btn-small mt-1'
+              href={globalThis.hubleto.config.projectUrl + '/questionnaires/' + R.id_questionnaire}
+            >
+              <span className='icon'><i className='fas fa-clipboard-question'></i></span>
+              <span className='text'>{this.translate('View answers')}</span>
+            </a>
+          : null}
+        <div className='text-xs text-gray-500 mt-1'>
+          {this.translate('The one-time link is no longer valid.')}
+        </div>
+      </div>;
+    }
+
+    if (!R.questionnaire_token) {
+      return <div className='badge badge-info'>{this.translate('Save the attendee to generate the link.')}</div>;
+    }
+
+    const url = R.url_questionnaire
+      ?? (globalThis.hubleto.config.projectUrl + '/training-questionnaire?t=' + R.questionnaire_token);
+
     return <div>
       <div className='flex gap-2 items-center'>
         <a className='btn btn-transparent btn-small' href={url} target='_blank'>
@@ -139,9 +168,7 @@ export default class FormAttendee<P, S> extends FormExtended<FormAttendeeProps, 
           <span className='text'>{this.translate('Copy')}</span>
         </button>
       </div>
-      {R.date_questionnaire_filled
-        ? <div className='badge badge-success'>{this.translate('Already submitted')}: {R.date_questionnaire_filled}</div>
-        : <div className='badge badge-warning'>{this.translate('Not submitted yet')}</div>}
+      <div className='badge badge-warning'>{this.translate('Not submitted yet')}</div>
     </div>;
   }
 

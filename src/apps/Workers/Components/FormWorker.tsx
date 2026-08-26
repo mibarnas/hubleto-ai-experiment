@@ -105,7 +105,7 @@ export default class FormWorker<P, S> extends FormExtended<FormWorkerProps, Form
 
       case 'schedules':
         return R.id > 0
-          ? <TableSchedules uid={this.props.uid + '_table_schedules'} parentForm={this} readonly={true} customEndpointParams={{ idWorker: R.id }}/>
+          ? <TableSchedules uid={this.props.uid + '_table_schedules'} parentForm={this} idWorker={R.id} readonly={true} customEndpointParams={{ idWorker: R.id }}/>
           : this.renderNotSavedYet();
 
       case 'certificates':

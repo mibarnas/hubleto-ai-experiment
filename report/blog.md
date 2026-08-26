@@ -204,3 +204,9 @@ Downloading certificates doesn't work, it throws 403 forbidden.
 ```md
 Why are the tables that weird with black bars inbetween? They don't look like the default Hubleto tables.
 ```
+
+```md
+http://localhost/algo-corp/training-questionnaire?t=01f7aca414388886148e1e0a4c2315c8
+
+this is still not working? It says 404 upon clicking "Submit" which is actually invalid?
+```

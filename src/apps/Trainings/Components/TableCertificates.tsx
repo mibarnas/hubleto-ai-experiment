@@ -32,11 +32,12 @@ export default class TableCertificates extends TableExtended<TableCertificatesPr
 
   /** Consumed by Certificate's RecordManager prepareReadQuery(). */
   getEndpointParams(): any {
-    return {
-      ...super.getEndpointParams(),
-      idWorker: this.props.idWorker,
-      idTraining: this.props.idTraining,
-    };
+    // Only send filters that are actually set -- spreading an undefined
+    // prop would clobber the same key coming from customEndpointParams.
+    const params: any = { ...super.getEndpointParams() };
+    if (this.props.idWorker !== undefined) params.idWorker = this.props.idWorker;
+    if (this.props.idTraining !== undefined) params.idTraining = this.props.idTraining;
+    return params;
   }
 
   setRecordFormUrl(id: number) {

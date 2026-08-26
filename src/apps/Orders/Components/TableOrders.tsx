@@ -33,12 +33,13 @@ export default class TableOrders extends TableExtended<TableOrdersProps, TableOr
 
   /** Consumed by Order's RecordManager prepareReadQuery(). */
   getEndpointParams(): any {
-    return {
-      ...super.getEndpointParams(),
-      idWorker: this.props.idWorker,
-      idCustomer: this.props.idCustomer,
-      idSchedule: this.props.idSchedule,
-    };
+    // Only send filters that are actually set -- spreading an undefined
+    // prop would clobber the same key coming from customEndpointParams.
+    const params: any = { ...super.getEndpointParams() };
+    if (this.props.idWorker !== undefined) params.idWorker = this.props.idWorker;
+    if (this.props.idCustomer !== undefined) params.idCustomer = this.props.idCustomer;
+    if (this.props.idSchedule !== undefined) params.idSchedule = this.props.idSchedule;
+    return params;
   }
 
   setRecordFormUrl(id: number) {

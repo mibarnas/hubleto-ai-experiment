@@ -32,7 +32,12 @@ export default class TableSchedules extends TableExtended<TableSchedulesProps, T
 
   /** Consumed by Schedule's RecordManager prepareReadQuery(). */
   getEndpointParams(): any {
-    return { ...super.getEndpointParams(), idTraining: this.props.idTraining, idWorker: this.props.idWorker };
+    // Only send filters that are actually set -- spreading an undefined
+    // prop would clobber the same key coming from customEndpointParams.
+    const params: any = { ...super.getEndpointParams() };
+    if (this.props.idTraining !== undefined) params.idTraining = this.props.idTraining;
+    if (this.props.idWorker !== undefined) params.idWorker = this.props.idWorker;
+    return params;
   }
 
   setRecordFormUrl(id: number) {

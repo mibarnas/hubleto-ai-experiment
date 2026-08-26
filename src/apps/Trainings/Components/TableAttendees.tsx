@@ -33,12 +33,13 @@ export default class TableAttendees extends TableExtended<TableAttendeesProps, T
 
   /** Consumed by Attendee's RecordManager prepareReadQuery(). */
   getEndpointParams(): any {
-    return {
-      ...super.getEndpointParams(),
-      idSchedule: this.props.idSchedule,
-      idOrder: this.props.idOrder,
-      idWorker: this.props.idWorker,
-    };
+    // Only send filters that are actually set -- spreading an undefined
+    // prop would clobber the same key coming from customEndpointParams.
+    const params: any = { ...super.getEndpointParams() };
+    if (this.props.idSchedule !== undefined) params.idSchedule = this.props.idSchedule;
+    if (this.props.idOrder !== undefined) params.idOrder = this.props.idOrder;
+    if (this.props.idWorker !== undefined) params.idWorker = this.props.idWorker;
+    return params;
   }
 
   setRecordFormUrl(id: number) {

@@ -35,10 +35,11 @@ export default class TableWorkers extends TableExtended<TableWorkersProps, Table
 
   /** Consumed by Worker's RecordManager `prepareReadQuery()`. */
   getEndpointParams(): any {
-    return {
-      ...super.getEndpointParams(),
-      idCustomer: this.props.idCustomer,
-    };
+    // Only send filters that are actually set -- spreading an undefined
+    // prop would clobber the same key coming from customEndpointParams.
+    const params: any = { ...super.getEndpointParams() };
+    if (this.props.idCustomer !== undefined) params.idCustomer = this.props.idCustomer;
+    return params;
   }
 
   setRecordFormUrl(id: number) {

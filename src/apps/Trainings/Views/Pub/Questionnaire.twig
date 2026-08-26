@@ -2,12 +2,12 @@
   <h1 style="font-size:1.5rem;margin-bottom:1.5rem">{{ translate('Satisfaction questionnaire') }}</h1>
 
   <form method="post" action="">
-    <input type="hidden" name="t" value="{{ token }}">
+    <input type="hidden" name="t" value="{{ viewParams.token }}">
     <input type="hidden" name="submitted" value="1">
 
     <p style="color:#555">{{ translate('Rate each statement from 1 (worst) to 5 (best).') }}</p>
 
-    {% for code, label in ratings %}
+    {% for code, label in viewParams.ratings %}
       <fieldset style="border:0;padding:.75rem 0;border-bottom:1px solid #eee">
         <legend style="padding:0;font-weight:600">{{ translate(label) }}</legend>
         {% for i in 1..5 %}
@@ -18,7 +18,7 @@
       </fieldset>
     {% endfor %}
 
-    {% for code, label in freeTexts %}
+    {% for code, label in viewParams.freeTexts %}
       <div style="padding:.75rem 0">
         <label style="display:block;font-weight:600;margin-bottom:.25rem">{{ translate(label) }}</label>
         <textarea name="{{ code }}" rows="3" style="width:100%;padding:.5rem;border:1px solid #ccc"></textarea>
