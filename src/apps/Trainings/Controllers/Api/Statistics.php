@@ -17,6 +17,8 @@ class Statistics extends \Hubleto\Erp\Controllers\ApiController
       'legend' => [ 'display' => false ],
       'responseCount' => $data['responseCount'],
       'averages' => $data['averages'],
+      'distribution' => $data['distribution'],
+      'trend' => $data['trend'],
       'freeText' => $data['freeText'],
     ];
   }

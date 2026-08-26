@@ -1,0 +1,36 @@
+/*
+ * Project CSS entry point.
+ *
+ * Two things upstream's entry (vendor/hubleto/assets/src/Main.twcss) cannot do
+ * on its own in this project's layout:
+ *
+ * 1. Its tailwind.config.js `content` globs assume react-ui is vendored at
+ *    vendor/hubleto/react-ui. Here react-ui lives outside the project folder and
+ *    is reached through the node_modules symlink, so those globs match nothing
+ *    and Tailwind emits none of the utility classes react-ui and primereact
+ *    need. The `@source` rules below add them back.
+ *
+ * 2. Importing that file flattens away its `@layer` order statement, leaving the
+ *    cascade order to fall out of first use -- which puts Tailwind's `base`
+ *    preflight after `components` and lets the reset win over every Hubleto
+ *    component style. Declaring the same order here, before the import, pins it.
+ *    Keep this list in sync with the upstream entry point.
+ *
+ * Both keep vendor/ untouched.
+ */
+
+@layer theme, base, components, primereact, hubleto-framework, utilities, hubleto-main;
+
+@import "../vendor/hubleto/assets/src/Main.twcss";
+@import "./react-ui-compat.twcss";
+
+/* react-ui components (Table, Form, Inputs, ...) */
+@source "../../hubleto/react-ui/core";
+@source "../../hubleto/react-ui/ext";
+@source "../../hubleto/react-ui/fc";
+
+/* primereact -- TabView/DataTable markup used by react-ui */
+@source "../../hubleto/react-ui/node_modules/primereact";
+
+/* this project's own apps */
+@source "./apps";

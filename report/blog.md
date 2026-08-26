@@ -180,3 +180,17 @@ No live browser walkthrough of the golden path (create training → date → ord
 One operational prerequisite still needed before certificates/emails work: a mails_accounts row for AlgoCorp under Mail → Accounts (SMTP creds).
 The plan file at report/claudes-plan.md (and the original plan doc) has the full spec for the remaining React layer if you pick this back up later.
 ```
+
+# Verification and UI bug fix
+
+```md
+Verify, that the plan has been executed and implemented in full. Additionally, fix the UI bug, where the Tables aren't rendering nicely right now.
+```
+
+```md
+the tables are still broken though?
+```
+
+```md
+can you fill in some test data?
+```

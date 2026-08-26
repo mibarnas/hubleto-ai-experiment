@@ -17,6 +17,10 @@ use Hubleto\App\Community\Documents\Models\DocumentVersion;
 use Hubleto\App\Community\Documents\Models\File as DocumentFile;
 use Hubleto\App\Community\Settings\Models\Company;
 
+use Hubleto\App\Custom\Trainings\Models\RecordManagers\Training as TrainingRecord;
+use Hubleto\App\Custom\Trainings\Models\RecordManagers\TrainingDate as TrainingDateRecord;
+use Hubleto\App\Custom\Workers\Models\RecordManagers\Worker as WorkerRecord;
+
 /**
  * Generates a certificate for a completed applicant from the training's
  * uploaded .docx template, saves it under upload/certificates/<year>/
@@ -143,7 +147,7 @@ class CertificateGenerator extends \Hubleto\Erp\Core
     return sprintf('AC-%s-%04d', $year, $countThisYear + 1);
   }
 
-  private function buildDestinationPath(Training $training, TrainingDate $trainingDate, Worker $worker): string
+  private function buildDestinationPath(TrainingRecord $training, TrainingDateRecord $trainingDate, WorkerRecord $worker): string
   {
     $year = date('Y', strtotime($trainingDate->datetime_start));
     $date = date('Y-m-d', strtotime($trainingDate->datetime_start));

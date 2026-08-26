@@ -1,0 +1,49 @@
+/*
+ * Compatibility styles for react-ui markup that vendor/hubleto/assets does not
+ * style yet.
+ *
+ * The react-ui checkout this project builds against (../hubleto/react-ui, at the
+ * "React 19 refactor" commit) renames/introduces some structural class names,
+ * but vendor/hubleto/assets ships the older stylesheet. While the app served the
+ * prebuilt bundle from vendor/hubleto/assets/compiled the two matched; building
+ * locally pairs the newer markup with the older CSS, leaving these classes with
+ * no rules at all.
+ *
+ * Everything below mirrors an existing rule in
+ * vendor/hubleto/assets/css/components.twcss rather than inventing a new look.
+ * Delete a block once the upstream stylesheet defines it.
+ */
+
+@layer hubleto-framework {
+
+  /* --- Table -------------------------------------------------------------
+   * core/Table.tsx renderRecords() wraps the grid in .table-container and
+   * emits a bare <table>. The sibling branch uses .table-default, so match it:
+   * full width and left aligned. Cell padding/row borders still cascade from
+   * the .table-body rules that wrap this. */
+  .hubleto.component.table .table-container { @apply w-full overflow-x-auto; }
+  .hubleto.component.table .table-container > table { @apply w-full text-left rtl:text-right; }
+  .hubleto.component.table .table-container > table > thead { @apply text-gray-700 bg-gray-50 dark:bg-gray-900 dark:text-gray-400; }
+  .hubleto.component.table .table-container > table > thead > tr > th { @apply px-1 py-1 align-bottom font-medium; }
+  .hubleto.component.table .table-container > table > thead > tr > th .title { @apply flex-1; }
+
+  /* Pagination row under the grid -- without this the buttons stack vertically. */
+  .hubleto.component.table .table-paginator { @apply flex flex-row flex-wrap items-center justify-center gap-1 mt-2; }
+
+  /* Vertical action list inside the "more actions" dropdown; the children
+   * already carry the styled .btn-list-item. Mirrors .list. */
+  .btn-list { @apply flex flex-col; }
+
+  /* --- Form header -------------------------------------------------------
+   * core/Form.tsx renders form-header-left/title/right, the exact counterparts
+   * of the styled table-header-* trio. */
+  .hubleto.component.form .form-header-left { @apply w-full flex flex-1 gap-1 items-center flex-col md:flex-row; }
+  .hubleto.component.form .form-header-title { @apply flex-1 text-left text-primary text-2xl mr-2 dark:text-white; }
+  .hubleto.component.form .form-header-right { @apply flex flex-1 text-center gap-1 justify-end; }
+
+  /* --- Small aliases ----------------------------------------------------- */
+  .badge.badge-extra-small { @apply text-xs m-0 py-0 px-1; }
+  .btn.btn-sm { @apply h-auto; }
+  .btn.btn-sm .icon, .btn.btn-sm .text { @apply min-h-0 text-sm py-0.5; }
+
+}

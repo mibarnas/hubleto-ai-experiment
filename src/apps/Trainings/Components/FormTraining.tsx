@@ -94,6 +94,24 @@ export default class FormTraining<P, S> extends FormExtended<FormTrainingProps, 
     </div>;
   }
 
+  /** Rating spread for one question -- two questions can share a mean and differ wildly. */
+  renderDistribution(code: string): JSX.Element {
+    const counts: any = this.state.statistics?.distribution?.[code];
+    if (!counts) return <></>;
+
+    const total = [1, 2, 3, 4, 5].reduce((sum, r) => sum + (counts[r] ?? 0), 0);
+    if (total == 0) return <span className='text-gray-400'>-</span>;
+
+    const shades = ['#ef4444', '#f97316', '#eab308', '#84cc16', '#22c55e'];
+
+    return <span className='flex h-3 w-full' title={[1, 2, 3, 4, 5].map((r) => r + ': ' + (counts[r] ?? 0)).join(', ')}>
+      {[1, 2, 3, 4, 5].map((r) => {
+        const share = (counts[r] ?? 0) * 100 / total;
+        return share == 0 ? null : <span key={r} style={{ width: share + '%', backgroundColor: shades[r - 1] }}></span>;
+      })}
+    </span>;
+  }
+
   renderStatistics(): JSX.Element {
     const R = this.state.record;
     if (!(R.id > 0)) return <div className='badge badge-info'>{this.translate('First save the training.')}</div>;
@@ -107,6 +125,8 @@ export default class FormTraining<P, S> extends FormExtended<FormTrainingProps, 
 
     const labels: Array<string> = stats.data?.labels ?? [];
     const values: Array<number> = stats.data?.values ?? [];
+    const codes: Array<string> = Object.keys(stats.averages ?? {});
+    const trend: any = stats.trend ?? { labels: [], values: [] };
     const freeText: any = stats.freeText ?? {};
 
     return <div className='flex flex-col gap-2'>
@@ -125,15 +145,35 @@ export default class FormTraining<P, S> extends FormExtended<FormTrainingProps, 
         <div className='card-body'>
           <HubletoChart type='bar' data={stats.data} legend={{ display: false }}/>
           <table className='w-full mt-4 text-sm'>
+            <thead><tr>
+              <th className='text-left'>{this.translate('Question')}</th>
+              <th className='text-right'>{this.translate('Average')}</th>
+              <th className='text-right w-40'>{this.translate('Ratings 1-5')}</th>
+            </tr></thead>
             <tbody>
               {labels.map((label: string, key: number) => <tr key={key} className='border-b border-gray-100'>
                 <td className='py-1'>{label}</td>
                 <td className='py-1 text-right font-bold'>{values[key]}</td>
+                <td className='py-1'>{this.renderDistribution(codes[key])}</td>
               </tr>)}
             </tbody>
           </table>
         </div>
       </div>
+      {trend.labels.length < 2 ? null : <div className='card'>
+        <div className='card-header'>{this.translate('Overall satisfaction per date')}</div>
+        <div className='card-body'>
+          <HubletoChart type='line' data={{
+            labels: trend.labels,
+            datasets: [{
+              label: this.translate('Overall satisfaction'),
+              data: trend.values,
+              borderColor: 'rgb(34, 197, 94)',
+              backgroundColor: 'rgb(34, 197, 94)',
+            }],
+          }} options={{ scales: { y: { beginAtZero: true, max: 5 } } }}/>
+        </div>
+      </div>}
       <div className='card'>
         <div className='card-header'>{this.translate('Comments')}</div>
         <div className='card-body flex flex-col gap-2'>
