@@ -34,3 +34,18 @@
 
 /* this project's own apps */
 @source "./apps";
+
+/*
+ * Tailwind v4 changed the default border colour from gray-200 to currentColor.
+ * Hubleto's stylesheet relies on the old default in places -- notably
+ * `.table-body tr { @apply ... divide-x; }`, whose dividers carry no explicit
+ * colour and therefore rendered as near-black bars between every table cell
+ * instead of the light grey lines the prebuilt vendor CSS produced.
+ *
+ * This is Tailwind's documented v4 upgrade snippet restoring the v3 default.
+ */
+@layer base {
+  *, ::after, ::before, ::backdrop, ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+}

@@ -139,7 +139,7 @@ export default class FormApplicant<P, S> extends FormExtended<FormApplicantProps
                 ? <a
                     className='btn btn-primary-outline btn-small'
                     target='_blank'
-                    href={globalThis.hubleto.config.uploadUrl + '/' + R.CERTIFICATE.file}
+                    href={globalThis.hubleto.config.projectUrl + '/certificates/download?id=' + R.CERTIFICATE.id}
                   >
                     <span className='icon'><i className='fas fa-file-word'></i></span>
                     <span className='text'>{R.CERTIFICATE.certificate_number}</span>

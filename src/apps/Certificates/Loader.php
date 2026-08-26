@@ -12,6 +12,7 @@ class Loader extends \Hubleto\Erp\App
     $this->router()->get([
       '/^certificates\/api\/generate\/?$/' => Controllers\Api\Generate::class,
       '/^certificates(\/(?<recordId>\d+))?\/?$/' => Controllers\Certificates::class,
+      '/^certificates\/download\/?$/' => Controllers\Download::class,
       '/^settings\/certificates\/?$/' => Controllers\Settings::class,
     ]);
 

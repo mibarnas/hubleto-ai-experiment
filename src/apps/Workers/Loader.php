@@ -10,6 +10,9 @@ class Loader extends \Hubleto\Erp\App
     parent::init();
 
     $this->router()->get([
+      // Serves upload/ (blocked from direct access by upload/.htaccess) to signed-in users.
+      '/^file\/(?<path>.+)$/' => Controllers\UploadedFile::class,
+
       '/^workers\/add\/?$/' => ['controller' => Controllers\Workers::class, 'vars' => ['recordId' => -1]],
       '/^workers(\/(?<recordId>\d+))?\/?$/' => Controllers\Workers::class,
       '/^settings\/workers\/?$/' => Controllers\Settings::class,

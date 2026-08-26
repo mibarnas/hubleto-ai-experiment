@@ -50,7 +50,7 @@ export default class FormCertificate<P, S> extends FormExtended<FormCertificateP
     return <a
       className="btn btn-primary-outline btn-small"
       target="_blank"
-      href={globalThis.hubleto.config.uploadUrl + '/' + file}
+      href={globalThis.hubleto.config.projectUrl + '/certificates/download?id=' + this.state.record.id}
     >
       <span className="icon"><i className="fas fa-file-word"></i></span>
       <span className="text">{this.translate('Download certificate')}</span>
