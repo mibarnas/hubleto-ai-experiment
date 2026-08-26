@@ -181,7 +181,7 @@ One operational prerequisite still needed before certificates/emails work: a mai
 The plan file at report/claudes-plan.md (and the original plan doc) has the full spec for the remaining React layer if you pick this back up later.
 ```
 
-# Verification and UI bug fix
+## Verification and UI bug fix
 
 ```md
 Verify, that the plan has been executed and implemented in full. Additionally, fix the UI bug, where the Tables aren't rendering nicely right now.
@@ -193,4 +193,14 @@ the tables are still broken though?
 
 ```md
 can you fill in some test data?
+```
+
+## Bug fixing 2
+
+```md
+Downloading certificates doesn't work, it throws 403 forbidden.
+```
+
+```md
+Why are the tables that weird with black bars inbetween? They don't look like the default Hubleto tables.
 ```
