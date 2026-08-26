@@ -3,7 +3,7 @@
 namespace Hubleto\App\Custom\Workers;
 
 use Hubleto\App\Custom\Workers\Models\Worker;
-use Hubleto\App\Custom\Certificates\Models\Certificate;
+use Hubleto\App\Custom\Trainings\Models\Certificate;
 
 /**
  * Keeps Worker.date_next_retraining / id_next_retraining_training in sync
@@ -19,14 +19,14 @@ class RetrainingCalculator extends \Hubleto\Erp\Core
 
     $certificates = $mCertificate->record
       ->where('id_worker', $idWorker)
-      ->whereNotNull('date_valid_until')
-      ->orderBy('date_valid_until', 'asc')
+      ->whereNotNull('date_expiration')
+      ->orderBy('date_expiration', 'asc')
       ->get();
 
     if ($certificates->isEmpty()) return;
 
     $today = date('Y-m-d');
-    $upcoming = $certificates->first(fn($c) => $c->date_valid_until >= $today);
+    $upcoming = $certificates->first(fn($c) => $c->date_expiration >= $today);
     $chosen = $upcoming ?? $certificates->last();
 
     if (!$chosen) return;
@@ -34,7 +34,7 @@ class RetrainingCalculator extends \Hubleto\Erp\Core
     /** @var Worker */
     $mWorker = $this->getModel(Worker::class);
     $mWorker->record->find($idWorker)?->update([
-      'date_next_retraining' => $chosen->date_valid_until,
+      'date_next_retraining' => $chosen->date_expiration,
       'id_next_retraining_training' => $chosen->id_training,
     ]);
   }

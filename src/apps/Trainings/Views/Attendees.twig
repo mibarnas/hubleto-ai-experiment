@@ -1,0 +1,10 @@
+<h1 class="app-main-title">{{ translate('Trainings') }} &gt; {{ translate('Attendees') }}</h1>
+
+<hblreact-trainings-table-attendees
+  string:tag="trainings-table-attendees"
+  int:record-id="{{ viewParams.recordId }}"
+  string:fulltext-search='{{ viewParams.q }}'
+  json:column-search='{{ viewParams.search|json_encode }}'
+  json:filters='{{ viewParams.filters|json_encode }}'
+  string:form-active-tab-uid='{{ viewParams.tab }}'
+></hblreact-trainings-table-attendees>

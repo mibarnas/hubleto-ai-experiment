@@ -8,7 +8,7 @@ use Hubleto\App\Community\Customers\Models\RecordManagers\Customer;
 
 class ExpiryNotification extends \Hubleto\Erp\RecordManager
 {
-  public $table = 'training_expiry_notifications';
+  public $table = 'expiry_notifications';
 
   public function WORKER(): BelongsTo
   {

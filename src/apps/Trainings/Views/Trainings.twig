@@ -1,7 +1,7 @@
 <h1 class="app-main-title">{{ translate('Trainings') }}</h1>
 
 <hblreact-trainings-table-trainings
-  string:tag="table-trainings"
+  string:tag="trainings-table-trainings"
   int:record-id="{{ viewParams.recordId }}"
   string:fulltext-search='{{ viewParams.q }}'
   json:column-search='{{ viewParams.search|json_encode }}'

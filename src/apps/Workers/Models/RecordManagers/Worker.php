@@ -10,7 +10,7 @@ use Hubleto\App\Community\Auth\Models\RecordManagers\User;
 
 class Worker extends \Hubleto\Erp\RecordManager
 {
-  public $table = 'training_workers';
+  public $table = 'workers';
 
   public function CUSTOMER(): BelongsTo
   {

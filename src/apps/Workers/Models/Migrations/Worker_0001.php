@@ -10,10 +10,10 @@ class Worker_0001 extends Migration
   public function upgradeSchema(): void
   {
     $this->db->execute("set foreign_key_checks = 0;
-drop table if exists `training_workers`;
+drop table if exists `workers`;
 set foreign_key_checks = 1;");
     $this->db->execute("SET foreign_key_checks = 0;
-create table `training_workers` (
+create table `workers` (
  `id` int(8) primary key auto_increment,
  `id_customer` int(8) NULL default NULL,
  `title_before` varchar(255) ,
@@ -23,12 +23,13 @@ create table `training_workers` (
  `email` varchar(255) ,
  `phone` varchar(255) ,
  `gender` int(255) ,
- `street` varchar(255) ,
+ `birth_number` varchar(255) ,
+ `address` varchar(255) ,
  `city` varchar(255) ,
  `zip` varchar(255) ,
  `id_country` int(8) NULL default NULL,
  `workplace_name` varchar(255) ,
- `workplace_street` varchar(255) ,
+ `workplace_address` varchar(255) ,
  `workplace_city` varchar(255) ,
  `workplace_zip` varchar(255) ,
  `date_next_retraining` date ,
@@ -47,7 +48,7 @@ create table `training_workers` (
 SET foreign_key_checks = 1;
 
 
-              alter table `training_workers`
+              alter table `workers`
               add constraint `email` unique (`email` asc)
             ;");
   }
@@ -55,29 +56,29 @@ SET foreign_key_checks = 1;
   public function downgradeSchema(): void
   {
     $this->db->execute("set foreign_key_checks = 0;
-drop table if exists `training_workers`;
+drop table if exists `workers`;
 set foreign_key_checks = 1;");
   }
 
   public function upgradeForeignKeys(): void
   {
-    $this->db->execute("ALTER TABLE `training_workers`
-          ADD CONSTRAINT `fk_90011929b51f229002ee8615a467c03e`
+    $this->db->execute("ALTER TABLE `workers`
+          ADD CONSTRAINT `fk_843c4a9d34aca03d98dfa2ff4b0fba80`
           FOREIGN KEY (`id_customer`)
           REFERENCES `customers` (`id`)
           ON DELETE RESTRICT
-          ON UPDATE RESTRICT; ALTER TABLE `training_workers`
-          ADD CONSTRAINT `fk_1aa8701e656506124cbf9095b53f2f4e`
+          ON UPDATE RESTRICT; ALTER TABLE `workers`
+          ADD CONSTRAINT `fk_5ae782d89f8c9a572f0f4226bc51723a`
           FOREIGN KEY (`id_country`)
           REFERENCES `countries` (`id`)
           ON DELETE RESTRICT
-          ON UPDATE RESTRICT; ALTER TABLE `training_workers`
-          ADD CONSTRAINT `fk_141422ebc222e651cccd27f381bff24d`
+          ON UPDATE RESTRICT; ALTER TABLE `workers`
+          ADD CONSTRAINT `fk_b53efd5647652fd19dc36a14c4ad9a76`
           FOREIGN KEY (`id_owner`)
           REFERENCES `users` (`id`)
           ON DELETE RESTRICT
-          ON UPDATE RESTRICT; ALTER TABLE `training_workers`
-          ADD CONSTRAINT `fk_9873518364003e055492664de0ba5b0d`
+          ON UPDATE RESTRICT; ALTER TABLE `workers`
+          ADD CONSTRAINT `fk_c5813e70a9e8bb51f0cacc9525af2e78`
           FOREIGN KEY (`id_manager`)
           REFERENCES `users` (`id`)
           ON DELETE RESTRICT
@@ -86,10 +87,10 @@ set foreign_key_checks = 1;");
 
   public function downgradeForeignKeys(): void
   {
-    $this->db->execute("ALTER TABLE `training_workers`
-          DROP FOREIGN KEY `fk_90011929b51f229002ee8615a467c03e`; ALTER TABLE `training_workers`
-          DROP FOREIGN KEY `fk_1aa8701e656506124cbf9095b53f2f4e`; ALTER TABLE `training_workers`
-          DROP FOREIGN KEY `fk_141422ebc222e651cccd27f381bff24d`; ALTER TABLE `training_workers`
-          DROP FOREIGN KEY `fk_9873518364003e055492664de0ba5b0d`;");
+    $this->db->execute("ALTER TABLE `workers`
+          DROP FOREIGN KEY `fk_843c4a9d34aca03d98dfa2ff4b0fba80`; ALTER TABLE `workers`
+          DROP FOREIGN KEY `fk_5ae782d89f8c9a572f0f4226bc51723a`; ALTER TABLE `workers`
+          DROP FOREIGN KEY `fk_b53efd5647652fd19dc36a14c4ad9a76`; ALTER TABLE `workers`
+          DROP FOREIGN KEY `fk_c5813e70a9e8bb51f0cacc9525af2e78`;");
   }
 }

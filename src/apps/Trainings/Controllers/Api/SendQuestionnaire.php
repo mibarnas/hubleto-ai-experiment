@@ -2,29 +2,29 @@
 
 namespace Hubleto\App\Custom\Trainings\Controllers\Api;
 
-use Hubleto\App\Custom\Trainings\Models\Applicant;
+use Hubleto\App\Custom\Trainings\Models\Attendee;
 
 class SendQuestionnaire extends \Hubleto\Erp\Controllers\ApiController
 {
   public function response(): array
   {
-    $idTrainingDate = $this->router()->urlParamAsInteger('idTrainingDate');
-    if ($idTrainingDate <= 0) throw new \Exception('idTrainingDate is required.');
+    $idSchedule = $this->router()->urlParamAsInteger('idSchedule');
+    if ($idSchedule <= 0) throw new \Exception('idSchedule is required.');
 
-    /** @var Applicant */
-    $mApplicant = $this->getModel(Applicant::class);
-    $applicants = $mApplicant->record->where('id_training_date', $idTrainingDate)->with('WORKER')->get();
+    /** @var Attendee */
+    $mAttendee = $this->getModel(Attendee::class);
+    $attendees = $mAttendee->record->where('id_schedule', $idSchedule)->with('WORKER')->get();
 
     $projectUrl = $this->env()->projectUrl;
     $sent = 0;
     $failed = [];
 
-    foreach ($applicants as $applicant) {
-      $worker = $applicant->WORKER;
-      if (!$worker || empty($worker->email)) { $failed[] = $applicant->id; continue; }
+    foreach ($attendees as $attendee) {
+      $worker = $attendee->WORKER;
+      if (!$worker || empty($worker->email)) { $failed[] = $attendee->id; continue; }
 
-      $questionnaireUrl = $projectUrl . '/training-questionnaire?t=' . $applicant->questionnaire_token;
-      $catalogUrl = $projectUrl . '/training-catalog-sheet?t=' . $applicant->catalog_token;
+      $questionnaireUrl = $projectUrl . '/training-questionnaire?t=' . $attendee->questionnaire_token;
+      $catalogUrl = $projectUrl . '/training-catalog-sheet?t=' . $attendee->catalog_token;
 
       try {
         $this->getService(\Hubleto\App\Custom\Workers\Mailer::class)->sendWithAttachment(
@@ -34,10 +34,10 @@ class SendQuestionnaire extends \Hubleto\Erp\Controllers\ApiController
             ': <a href="' . htmlspecialchars($questionnaireUrl) . '">' . htmlspecialchars($questionnaireUrl) . '</a><br/>' .
             $this->translate('and the catalog sheet') . ': <a href="' . htmlspecialchars($catalogUrl) . '">' . htmlspecialchars($catalogUrl) . '</a>'
         );
-        $mApplicant->record->find($applicant->id)->update(['questionnaire_sent_on' => date('Y-m-d H:i:s')]);
+        $mAttendee->record->find($attendee->id)->update(['date_questionnaire_sent' => date('Y-m-d H:i:s')]);
         $sent++;
       } catch (\Throwable $e) {
-        $failed[] = $applicant->id;
+        $failed[] = $attendee->id;
       }
     }
 

@@ -1,0 +1,13 @@
+namespace: Hubleto\App\Custom\Questionnaires
+appType: custom
+monthlyPricePerUser: 0
+sidebarGroup: events
+rootUrlSlug: questionnaires
+name: Questionnaires
+icon: fas fa-clipboard-question
+requires: []
+author:
+  name: "AlgoCorp"
+  nick: "algocorp"
+highlight: Satisfaction questionnaires filled in by training attendees.
+created: 2026-08-26 07:20:00

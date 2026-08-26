@@ -2,14 +2,12 @@ import App from '@hubleto/react-ui/core/App'
 
 import TableTrainings from "./Components/TableTrainings"
 import FormTraining from "./Components/FormTraining"
-import TableTrainingDates from "./Components/TableTrainingDates"
-import FormTrainingDate from "./Components/FormTrainingDate"
-import TableApplicants from "./Components/TableApplicants"
-import FormApplicant from "./Components/FormApplicant"
-import TableTrainingOrders from "./Components/TableTrainingOrders"
-import FormTrainingOrder from "./Components/FormTrainingOrder"
-import TableQuestionnaireAnswers from "./Components/TableQuestionnaireAnswers"
-import FormQuestionnaireAnswer from "./Components/FormQuestionnaireAnswer"
+import TableSchedules from "./Components/TableSchedules"
+import FormSchedule from "./Components/FormSchedule"
+import TableAttendees from "./Components/TableAttendees"
+import FormAttendee from "./Components/FormAttendee"
+import TableCertificates from "./Components/TableCertificates"
+import FormCertificate from "./Components/FormCertificate"
 
 class TrainingsApp extends App {
   init() {
@@ -17,14 +15,12 @@ class TrainingsApp extends App {
 
     globalThis.hubleto.registerReactComponent('TrainingsTableTrainings', TableTrainings);
     globalThis.hubleto.registerReactComponent('TrainingsFormTraining', FormTraining);
-    globalThis.hubleto.registerReactComponent('TrainingsTableTrainingDates', TableTrainingDates);
-    globalThis.hubleto.registerReactComponent('TrainingsFormTrainingDate', FormTrainingDate);
-    globalThis.hubleto.registerReactComponent('TrainingsTableApplicants', TableApplicants);
-    globalThis.hubleto.registerReactComponent('TrainingsFormApplicant', FormApplicant);
-    globalThis.hubleto.registerReactComponent('TrainingsTableTrainingOrders', TableTrainingOrders);
-    globalThis.hubleto.registerReactComponent('TrainingsFormTrainingOrder', FormTrainingOrder);
-    globalThis.hubleto.registerReactComponent('TrainingsTableQuestionnaireAnswers', TableQuestionnaireAnswers);
-    globalThis.hubleto.registerReactComponent('TrainingsFormQuestionnaireAnswer', FormQuestionnaireAnswer);
+    globalThis.hubleto.registerReactComponent('TrainingsTableSchedules', TableSchedules);
+    globalThis.hubleto.registerReactComponent('TrainingsFormSchedule', FormSchedule);
+    globalThis.hubleto.registerReactComponent('TrainingsTableAttendees', TableAttendees);
+    globalThis.hubleto.registerReactComponent('TrainingsFormAttendee', FormAttendee);
+    globalThis.hubleto.registerReactComponent('TrainingsTableCertificates', TableCertificates);
+    globalThis.hubleto.registerReactComponent('TrainingsFormCertificate', FormCertificate);
   }
 }
 

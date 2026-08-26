@@ -2,7 +2,7 @@
 
 namespace Hubleto\App\Custom\Trainings\Controllers\Pub;
 
-use Hubleto\App\Custom\Trainings\Models\Applicant;
+use Hubleto\App\Custom\Trainings\Models\Attendee;
 
 class CatalogSheet extends \Hubleto\Erp\Controller
 {
@@ -15,11 +15,11 @@ class CatalogSheet extends \Hubleto\Erp\Controller
 
     $token = $this->router()->urlParamAsString('t');
 
-    /** @var Applicant */
-    $mApplicant = $this->getModel(Applicant::class);
-    $applicant = $mApplicant->record->where('catalog_token', $token)->with('WORKER')->first();
+    /** @var Attendee */
+    $mAttendee = $this->getModel(Attendee::class);
+    $attendee = $mAttendee->record->where('catalog_token', $token)->with('WORKER')->first();
 
-    if (!$applicant) {
+    if (!$attendee) {
       $this->viewParams['error'] = $this->translate('This link is invalid.');
       $this->setView('@Hubleto:App:Custom:Trainings/Pub/CatalogSheet.twig');
       return;
@@ -27,20 +27,20 @@ class CatalogSheet extends \Hubleto\Erp\Controller
 
     $submitted = $this->router()->urlParamAsBool('submitted');
 
-    if ($submitted && empty($applicant->catalog_filled_on)) {
-      $mApplicant->record->find($applicant->id)->update([
+    if ($submitted && empty($attendee->date_catalog_filled)) {
+      $mAttendee->record->find($attendee->id)->update([
         'education_level' => $this->router()->urlParamAsInteger('education_level') ?: null,
         'financing_type' => $this->router()->urlParamAsInteger('financing_type') ?: null,
-        'catalog_filled_on' => date('Y-m-d H:i:s'),
+        'date_catalog_filled' => date('Y-m-d H:i:s'),
       ]);
-      $applicant = $mApplicant->record->find($applicant->id)->load('WORKER');
+      $attendee = $mAttendee->record->find($attendee->id)->load('WORKER');
     }
 
     $this->viewParams['token'] = $token;
-    $this->viewParams['worker'] = $applicant->WORKER;
-    $this->viewParams['alreadyFilled'] = !empty($applicant->catalog_filled_on);
-    $this->viewParams['educationLevels'] = array_map(fn($v) => $this->translate($v), Applicant::EDUCATION_VALUES);
-    $this->viewParams['financingTypes'] = array_map(fn($v) => $this->translate($v), Applicant::FINANCING_VALUES);
+    $this->viewParams['worker'] = $attendee->WORKER;
+    $this->viewParams['alreadyFilled'] = !empty($attendee->date_catalog_filled);
+    $this->viewParams['educationLevels'] = array_map(fn($v) => $this->translate($v), Attendee::EDUCATION_VALUES);
+    $this->viewParams['financingTypes'] = array_map(fn($v) => $this->translate($v), Attendee::FINANCING_VALUES);
 
     $this->setView('@Hubleto:App:Custom:Trainings/Pub/CatalogSheet.twig');
   }

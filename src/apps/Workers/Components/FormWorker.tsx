@@ -1,8 +1,9 @@
 import React from 'react'
 import FormExtended, { FormExtendedProps, FormExtendedState } from '@hubleto/react-ui/ext/FormExtended';
-import TableApplicants from '../../Trainings/Components/TableApplicants';
-import TableTrainingOrders from '../../Trainings/Components/TableTrainingOrders';
-import TableCertificates from '../../Certificates/Components/TableCertificates';
+import TableAttendees from '../../Trainings/Components/TableAttendees';
+import TableSchedules from '../../Trainings/Components/TableSchedules';
+import TableCertificates from '../../Trainings/Components/TableCertificates';
+import TableOrders from '../../Orders/Components/TableOrders';
 
 export interface FormWorkerProps extends FormExtendedProps { }
 export interface FormWorkerState extends FormExtendedState { }
@@ -30,7 +31,8 @@ export default class FormWorker<P, S> extends FormExtended<FormWorkerProps, Form
   getTabsLeft() {
     return [
       { uid: 'default', title: <b>{this.translate('Worker')}</b> },
-      { uid: 'trainings', title: this.translate('Trainings attended') },
+      { uid: 'trainings', title: this.translate('Trainings') },
+      { uid: 'schedules', title: this.translate('Schedules') },
       { uid: 'certificates', title: this.translate('Certificates') },
       { uid: 'orders', title: this.translate('Orders') },
     ];
@@ -67,10 +69,11 @@ export default class FormWorker<P, S> extends FormExtended<FormWorkerProps, Form
               {this.inputWrapper('last_name')}
               {this.inputWrapper('title_after')}
               {this.inputWrapper('gender')}
+              {this.inputWrapper('birth_number')}
               {this.inputWrapper('email')}
               {this.inputWrapper('phone')}
               {this.divider(this.translate('Address'))}
-              {this.inputWrapper('street')}
+              {this.inputWrapper('address')}
               {this.inputWrapper('city')}
               {this.inputWrapper('zip')}
               {this.inputWrapper('id_country')}
@@ -81,10 +84,10 @@ export default class FormWorker<P, S> extends FormExtended<FormWorkerProps, Form
             <div className='card-body'>
               {this.inputWrapper('id_customer')}
               {this.inputWrapper('workplace_name')}
-              {this.inputWrapper('workplace_street')}
+              {this.inputWrapper('workplace_address')}
               {this.inputWrapper('workplace_city')}
               {this.inputWrapper('workplace_zip')}
-              {this.divider(this.translate('Retraining'))}
+              {this.divider(this.translate('Next retraining'))}
               {this.inputWrapper('date_next_retraining')}
               {this.inputWrapper('id_next_retraining_training')}
               {this.divider(this.translate('Other'))}
@@ -97,32 +100,22 @@ export default class FormWorker<P, S> extends FormExtended<FormWorkerProps, Form
 
       case 'trainings':
         return R.id > 0
-          ? <TableApplicants
-              uid={this.props.uid + '_table_applicants'}
-              parentForm={this}
-              idWorker={R.id}
-              customEndpointParams={{ idWorker: R.id }}
-            />
+          ? <TableAttendees uid={this.props.uid + '_table_attendees'} parentForm={this} idWorker={R.id} customEndpointParams={{ idWorker: R.id }}/>
+          : this.renderNotSavedYet();
+
+      case 'schedules':
+        return R.id > 0
+          ? <TableSchedules uid={this.props.uid + '_table_schedules'} parentForm={this} readonly={true} customEndpointParams={{ idWorker: R.id }}/>
           : this.renderNotSavedYet();
 
       case 'certificates':
         return R.id > 0
-          ? <TableCertificates
-              uid={this.props.uid + '_table_certificates'}
-              parentForm={this}
-              idWorker={R.id}
-              customEndpointParams={{ idWorker: R.id }}
-            />
+          ? <TableCertificates uid={this.props.uid + '_table_certificates'} parentForm={this} idWorker={R.id} customEndpointParams={{ idWorker: R.id }}/>
           : this.renderNotSavedYet();
 
       case 'orders':
         return R.id > 0
-          ? <TableTrainingOrders
-              uid={this.props.uid + '_table_orders'}
-              parentForm={this}
-              idWorker={R.id}
-              customEndpointParams={{ idWorker: R.id }}
-            />
+          ? <TableOrders uid={this.props.uid + '_table_orders'} parentForm={this} idWorker={R.id} customEndpointParams={{ idWorker: R.id }}/>
           : this.renderNotSavedYet();
 
       default:

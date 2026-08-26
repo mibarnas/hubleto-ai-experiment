@@ -21,7 +21,8 @@
         "dompdf/dompdf": "^3",
         "erusev/parsedown": "^1",
         "phpmailer/phpmailer": "^6",
-        "phpoffice/phpspreadsheet": "dev-master"
+        "phpoffice/phpspreadsheet": "dev-master",
+        "phpoffice/phpword": "dev-master"
     },
     "autoload": {
         "psr-4": {

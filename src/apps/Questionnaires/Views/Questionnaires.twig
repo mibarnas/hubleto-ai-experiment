@@ -1,0 +1,10 @@
+<h1 class="app-main-title">{{ translate('Questionnaires') }}</h1>
+
+<hblreact-questionnaires-table-questionnaires
+  string:tag="questionnaires-table-questionnaires"
+  int:record-id="{{ viewParams.recordId }}"
+  string:fulltext-search='{{ viewParams.q }}'
+  json:column-search='{{ viewParams.search|json_encode }}'
+  json:filters='{{ viewParams.filters|json_encode }}'
+  string:form-active-tab-uid='{{ viewParams.tab }}'
+></hblreact-questionnaires-table-questionnaires>

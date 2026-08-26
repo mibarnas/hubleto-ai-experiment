@@ -10,10 +10,10 @@ class ExpiryNotification_0001 extends Migration
   public function upgradeSchema(): void
   {
     $this->db->execute("set foreign_key_checks = 0;
-drop table if exists `training_expiry_notifications`;
+drop table if exists `expiry_notifications`;
 set foreign_key_checks = 1;");
     $this->db->execute("SET foreign_key_checks = 0;
-create table `training_expiry_notifications` (
+create table `expiry_notifications` (
  `id` int(8) primary key auto_increment,
  `id_worker` int(8) NULL default NULL,
  `id_certificate` int(8) NULL default NULL,
@@ -36,19 +36,19 @@ SET foreign_key_checks = 1;");
   public function downgradeSchema(): void
   {
     $this->db->execute("set foreign_key_checks = 0;
-drop table if exists `training_expiry_notifications`;
+drop table if exists `expiry_notifications`;
 set foreign_key_checks = 1;");
   }
 
   public function upgradeForeignKeys(): void
   {
-    $this->db->execute("ALTER TABLE `training_expiry_notifications`
-          ADD CONSTRAINT `fk_631c86adaae1fcf4ab261966442f27f5`
+    $this->db->execute("ALTER TABLE `expiry_notifications`
+          ADD CONSTRAINT `fk_fe45abcdc3999d50ac6bfda636adb203`
           FOREIGN KEY (`id_worker`)
-          REFERENCES `training_workers` (`id`)
+          REFERENCES `workers` (`id`)
           ON DELETE RESTRICT
-          ON UPDATE RESTRICT; ALTER TABLE `training_expiry_notifications`
-          ADD CONSTRAINT `fk_bca1236b6d7399219dd9f8a9d7a0a872`
+          ON UPDATE RESTRICT; ALTER TABLE `expiry_notifications`
+          ADD CONSTRAINT `fk_20d15169e505d1ae552f6beb9f598292`
           FOREIGN KEY (`id_customer`)
           REFERENCES `customers` (`id`)
           ON DELETE RESTRICT
@@ -57,8 +57,8 @@ set foreign_key_checks = 1;");
 
   public function downgradeForeignKeys(): void
   {
-    $this->db->execute("ALTER TABLE `training_expiry_notifications`
-          DROP FOREIGN KEY `fk_631c86adaae1fcf4ab261966442f27f5`; ALTER TABLE `training_expiry_notifications`
-          DROP FOREIGN KEY `fk_bca1236b6d7399219dd9f8a9d7a0a872`;");
+    $this->db->execute("ALTER TABLE `expiry_notifications`
+          DROP FOREIGN KEY `fk_fe45abcdc3999d50ac6bfda636adb203`; ALTER TABLE `expiry_notifications`
+          DROP FOREIGN KEY `fk_20d15169e505d1ae552f6beb9f598292`;");
   }
 }

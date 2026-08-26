@@ -6,7 +6,6 @@ import FormWorker from "./Components/FormWorker"
 class WorkersApp extends App {
   init() {
     super.init();
-
     globalThis.hubleto.registerReactComponent('WorkersTableWorkers', TableWorkers);
     globalThis.hubleto.registerReactComponent('WorkersFormWorker', FormWorker);
   }

@@ -23,7 +23,7 @@ class ExpiryNotification extends \Hubleto\Erp\Model
     self::KIND_COMPANY_YEARLY_DIGEST => 'Yearly digest (company)',
   ];
 
-  public string $table = 'training_expiry_notifications';
+  public string $table = 'expiry_notifications';
   public string $recordManagerClass = RecordManagers\ExpiryNotification::class;
   public ?string $lookupSqlValue = 'concat("Notification #", {%TABLE%}.id)';
 
@@ -36,7 +36,7 @@ class ExpiryNotification extends \Hubleto\Erp\Model
   {
     return array_merge(parent::describeColumns(), [
       'id_worker' => (new Lookup($this, $this->translate('Worker'), Worker::class))->setDefaultVisible(),
-      'id_certificate' => (new Lookup($this, $this->translate('Certificate'), \Hubleto\App\Custom\Certificates\Models\Certificate::class))
+      'id_certificate' => (new Lookup($this, $this->translate('Certificate'), \Hubleto\App\Custom\Trainings\Models\Certificate::class))
         ->setProperty('disableForeignKey', true),
       'id_customer' => (new Lookup($this, $this->translate('Company'), Customer::class))->setDefaultVisible(),
       'kind' => (new Integer($this, $this->translate('Kind')))->setEnumValues(array_map(fn($v) => $this->translate($v), self::KIND_VALUES))->setDefaultVisible()->setRequired(),

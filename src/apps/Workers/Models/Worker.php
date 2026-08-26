@@ -2,7 +2,6 @@
 
 namespace Hubleto\App\Custom\Workers\Models;
 
-use Hubleto\Framework\Db\Column\Boolean;
 use Hubleto\Framework\Db\Column\Date;
 use Hubleto\Framework\Db\Column\Email;
 use Hubleto\Framework\Db\Column\Integer;
@@ -26,7 +25,7 @@ class Worker extends \Hubleto\Erp\Model
     self::GENDER_UNSPECIFIED => 'Unspecified',
   ];
 
-  public string $table = 'training_workers';
+  public string $table = 'workers';
   public string $recordManagerClass = RecordManagers\Worker::class;
   public ?string $lookupSqlValue = 'concat(ifnull({%TABLE%}.first_name, ""), " ", ifnull({%TABLE%}.last_name, ""))';
   public ?string $lookupUrlDetail = 'workers/{%ID%}';
@@ -50,18 +49,22 @@ class Worker extends \Hubleto\Erp\Model
       'email' => (new Email($this, $this->translate('Email')))->setRequired()->setDefaultVisible(),
       'phone' => (new Varchar($this, $this->translate('Phone')))->setDefaultVisible(),
       'gender' => (new Integer($this, $this->translate('Gender')))->setEnumValues(array_map(fn($v) => $this->translate($v), self::GENDER_VALUES))->setDefaultValue(self::GENDER_UNSPECIFIED),
-      'street' => (new Varchar($this, $this->translate('Street'))),
+      // The ERD's truncated `birth_c...` -- personal data, so hidden by default.
+      'birth_number' => (new Varchar($this, $this->translate('Birth number')))->setDefaultHidden(),
+      'address' => (new Varchar($this, $this->translate('Street'))),
       'city' => (new Varchar($this, $this->translate('City')))->setDefaultVisible(),
       'zip' => (new Varchar($this, $this->translate('ZIP'))),
       'id_country' => (new Lookup($this, $this->translate('Country'), Country::class)),
       'workplace_name' => (new Varchar($this, $this->translate('Workplace name'))),
-      'workplace_street' => (new Varchar($this, $this->translate('Workplace street'))),
+      'workplace_address' => (new Varchar($this, $this->translate('Workplace street'))),
       'workplace_city' => (new Varchar($this, $this->translate('Workplace city'))),
       'workplace_zip' => (new Varchar($this, $this->translate('Workplace ZIP'))),
+      // Denormalised so the Workers table can sort and filter on them.
       'date_next_retraining' => (new Date($this, $this->translate('Next retraining date')))->setReadonly()->setDefaultVisible(),
       'id_next_retraining_training' => (new Lookup($this, $this->translate('Training to retake'), \Hubleto\App\Custom\Trainings\Models\Training::class))
         ->setReadonly()
         ->setDefaultVisible()
+        // Trainings installs after Workers, so the constraint is skipped.
         ->setProperty('disableForeignKey', true)
       ,
       'note' => (new Text($this, $this->translate('Note'))),
@@ -76,9 +79,7 @@ class Worker extends \Hubleto\Erp\Model
     return parent::indexes([
       'email' => [
         'type' => 'unique',
-        'columns' => [
-          'email' => [ 'order' => 'asc' ],
-        ],
+        'columns' => [ 'email' => [ 'order' => 'asc' ] ],
       ],
     ]);
   }
