@@ -1,0 +1,19 @@
+namespace: Hubleto\App\Custom\TrainingOrders
+appType: custom
+monthlyPricePerUser: 0
+sidebarGroup: events
+# Renamed away from `orders`: the community Orders app already owns that root
+# slug and every `orders/...` route, so the two apps were shadowing each other.
+rootUrlSlug: training-orders
+name: Training orders
+icon: fas fa-file-invoice
+requires:
+  - Hubleto\App\Custom\Workers
+  - Hubleto\App\Custom\Trainings
+  - Hubleto\App\Community\Customers
+  - Hubleto\App\Community\Contacts
+author:
+  name: "AlgoCorp"
+  nick: "algocorp"
+highlight: Training orders placed by private individuals and companies.
+created: 2026-08-26 07:20:00

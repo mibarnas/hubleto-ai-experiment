@@ -21,6 +21,14 @@ if (is_array($config['appRepositories']) && count($config['appRepositories']) > 
     }
 }
 
+// project-level service overrides
+// The stock translator only reads vendor/hubleto/erp/lang; this one also reads
+// PROJECT_FOLDER/lang, where the custom apps keep their dictionaries.
+\Hubleto\Framework\DependencyInjection::setServiceProvider(
+    \Hubleto\Framework\Translator::class,
+    \HubletoProject\Dependency\Translator::class
+);
+
 // init main class
 $hubleto = new \Hubleto\Erp\Loader($config);
 $hubleto->init();

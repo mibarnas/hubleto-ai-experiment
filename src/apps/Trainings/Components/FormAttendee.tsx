@@ -1,7 +1,8 @@
 import React from 'react'
-import FormExtended, { FormExtendedProps, FormExtendedState } from '@hubleto/react-ui/ext/FormExtended';
+import { FormExtendedProps, FormExtendedState } from '@hubleto/react-ui/ext/FormExtended';
 import request from '@hubleto/react-ui/core/Request';
 import ModalSimple from '@hubleto/react-ui/core/ModalSimple';
+import FormAlgo from './FormAlgo';
 
 export interface FormAttendeeProps extends FormExtendedProps { }
 export interface FormAttendeeState extends FormExtendedState {
@@ -19,9 +20,9 @@ const CERTIFICATE_FIELDS = [
   { name: 'date_expiration', label: 'Expires on', type: 'date' },
 ];
 
-export default class FormAttendee<P, S> extends FormExtended<FormAttendeeProps, FormAttendeeState> {
+export default class FormAttendee<P, S> extends FormAlgo<FormAttendeeProps, FormAttendeeState> {
   static defaultProps: any = {
-    ...FormExtended.defaultProps,
+    ...FormAlgo.defaultProps,
     icon: 'fas fa-user-graduate',
     model: 'Hubleto/App/Custom/Trainings/Models/Attendee',
   }
@@ -44,8 +45,8 @@ export default class FormAttendee<P, S> extends FormExtended<FormAttendeeProps, 
     };
   }
 
-  getTabsLeft() {
-    return [ { uid: 'default', title: <b>{this.translate('Attendee')}</b> } ];
+  getMainTab() {
+    return { uid: 'default', title: <b>{this.translate('Attendee')}</b> };
   }
 
   getRecordFormUrl(): string {
@@ -73,11 +74,16 @@ export default class FormAttendee<P, S> extends FormExtended<FormAttendeeProps, 
       (result: any) => {
         this.setState({ isGenerating: false, showCertificateForm: false } as FormAttendeeState);
         const unresolved: Array<string> = result.unresolvedPlaceholders ?? [];
+        const unknown: Array<string> = result.unknownPlaceholders ?? [];
         globalThis.hubleto.showDialogWarning(<>
           <div>{this.translate('The certificate has been generated and emailed to the attendee.')}</div>
           {unresolved.length == 0 ? null : <div className='mt-2'>
-            <b>{this.translate('Template placeholders left unresolved:')}</b>
+            <b>{this.translate('Values the template asked for but that are empty:')}</b>
             <div>{unresolved.join(', ')}</div>
+          </div>}
+          {unknown.length == 0 ? null : <div className='mt-2'>
+            <b>{this.translate('Placeholders in the template that cannot be filled in:')}</b>
+            <div>{unknown.join(', ')}</div>
           </div>}
         </>, { header: this.translate('Certificate generated') });
         this.loadRecord();
@@ -96,7 +102,7 @@ export default class FormAttendee<P, S> extends FormExtended<FormAttendeeProps, 
         <div className='card-header'>{this.translate('Certificate details')}</div>
         <div className='card-body'>
           <div className='badge badge-info mb-2'>
-            {this.translate('Leave a field empty to use the value configured on the training.')}
+            {this.translate('Leave a field empty to use the value derived from the training.')}
           </div>
           {CERTIFICATE_FIELDS.map((field) => <div key={field.name} className='mb-2'>
             <label className='block text-xs text-gray-500'>{this.translate(field.label)}</label>
@@ -124,27 +130,26 @@ export default class FormAttendee<P, S> extends FormExtended<FormAttendeeProps, 
   }
 
   /**
-   * The one-time link 404s by design once the questionnaire is submitted, so
-   * only offer it while it still works; afterwards link to the stored answers.
+   * One public link now covers both the catalog sheet and the questionnaire.
+   * It 404s by design once submitted, so it is only offered while it still
+   * works; afterwards the stored answers are linked instead.
    */
-  renderQuestionnaireLink(): JSX.Element {
+  renderPublicFormLink(): JSX.Element {
     const R = this.state.record;
+    const projectUrl = globalThis.hubleto.config.projectUrl;
 
     if (R.date_questionnaire_filled) {
-      return <div>
+      return <div className='flex flex-col gap-1'>
         <div className='badge badge-success'>
           {this.translate('Submitted')}: {R.date_questionnaire_filled}
         </div>
         {R.id_questionnaire > 0
-          ? <a
-              className='btn btn-transparent btn-small mt-1'
-              href={globalThis.hubleto.config.projectUrl + '/questionnaires/' + R.id_questionnaire}
-            >
+          ? <a className='btn btn-transparent btn-small' href={projectUrl + '/questionnaires/' + R.id_questionnaire}>
               <span className='icon'><i className='fas fa-clipboard-question'></i></span>
-              <span className='text'>{this.translate('View answers')}</span>
+              <span className='text'>{this.translate('Open questionnaire answers')}</span>
             </a>
           : null}
-        <div className='text-xs text-gray-500 mt-1'>
+        <div className='text-xs text-gray-500'>
           {this.translate('The one-time link is no longer valid.')}
         </div>
       </div>;
@@ -154,10 +159,9 @@ export default class FormAttendee<P, S> extends FormExtended<FormAttendeeProps, 
       return <div className='badge badge-info'>{this.translate('Save the attendee to generate the link.')}</div>;
     }
 
-    const url = R.url_questionnaire
-      ?? (globalThis.hubleto.config.projectUrl + '/training-questionnaire?t=' + R.questionnaire_token);
+    const url = R.url_questionnaire ?? (projectUrl + '/training-questionnaire?t=' + R.questionnaire_token);
 
-    return <div>
+    return <div className='flex flex-col gap-1'>
       <div className='flex gap-2 items-center'>
         <a className='btn btn-transparent btn-small' href={url} target='_blank'>
           <span className='icon'><i className='fas fa-up-right-from-square'></i></span>
@@ -169,12 +173,49 @@ export default class FormAttendee<P, S> extends FormExtended<FormAttendeeProps, 
         </button>
       </div>
       <div className='badge badge-warning'>{this.translate('Not submitted yet')}</div>
+      <div className='text-xs text-gray-500'>
+        {this.translate('The attendee confirms their personal details, fills in the catalog sheet and answers the questionnaire on this one page.')}
+      </div>
     </div>;
   }
 
-  renderTab(tabUid: string) {
+  /** Both the certificate record and the generated PDF, once it exists. */
+  renderCertificate(): JSX.Element {
     const R = this.state.record;
+    const projectUrl = globalThis.hubleto.config.projectUrl;
 
+    if (R.id_certificate > 0) {
+      return <div className='flex flex-wrap gap-2'>
+        <a className='btn btn-primary-outline btn-small' href={projectUrl + '/trainings/certificates/' + R.id_certificate}>
+          <span className='icon'><i className='fas fa-certificate'></i></span>
+          <span className='text'>{this.translate('Open certificate')}</span>
+        </a>
+        <a
+          className='btn btn-transparent btn-small'
+          target='_blank'
+          href={projectUrl + '/trainings/certificates/download?id=' + R.id_certificate}
+        >
+          <span className='icon'><i className='fas fa-file-pdf'></i></span>
+          <span className='text'>{this.translate('Download certificate')}</span>
+        </a>
+      </div>;
+    }
+
+    return <>
+      <button
+        className='btn btn-primary btn-small'
+        disabled={!(R.id > 0) || !R.is_passed}
+        onClick={() => this.setState({ showCertificateForm: true } as FormAttendeeState)}
+      >
+        <span className='icon'><i className='fas fa-certificate'></i></span>
+        <span className='text'>{this.translate('Generate certificate')}</span>
+      </button>
+      {R.id > 0 && R.is_passed ? null
+        : <div className='badge badge-info mt-2'>{this.translate('A certificate can only be generated once the attendee has passed.')}</div>}
+    </>;
+  }
+
+  renderTab(tabUid: string) {
     switch (tabUid) {
       case 'default':
         return <>
@@ -190,6 +231,7 @@ export default class FormAttendee<P, S> extends FormExtended<FormAttendeeProps, 
                 {this.divider(this.translate('Catalog sheet data'))}
                 {this.inputWrapper('education_level')}
                 {this.inputWrapper('financing_type')}
+                {this.inputWrapper('date_catalog_filled')}
                 {this.inputWrapper('file_last_certificate')}
               </div>
             </div>
@@ -198,28 +240,10 @@ export default class FormAttendee<P, S> extends FormExtended<FormAttendeeProps, 
               <div className='card-body'>
                 {this.inputWrapper('date_meeting_link_sent')}
                 {this.inputWrapper('date_questionnaire_sent')}
-                {this.divider(this.translate('Questionnaire link'))}
-                {this.renderQuestionnaireLink()}
+                {this.divider(this.translate('Catalog sheet and questionnaire'))}
+                {this.renderPublicFormLink()}
                 {this.divider(this.translate('Certificate'))}
-                {R.id_certificate > 0
-                  ? <a
-                      className='btn btn-primary-outline btn-small'
-                      target='_blank'
-                      href={globalThis.hubleto.config.projectUrl + '/trainings/certificates/download?id=' + R.id_certificate}
-                    >
-                      <span className='icon'><i className='fas fa-file-pdf'></i></span>
-                      <span className='text'>{this.translate('Download certificate')}</span>
-                    </a>
-                  : <button
-                      className='btn btn-primary btn-small'
-                      disabled={!(R.id > 0) || !R.is_passed}
-                      onClick={() => this.setState({ showCertificateForm: true } as FormAttendeeState)}
-                    >
-                      <span className='icon'><i className='fas fa-certificate'></i></span>
-                      <span className='text'>{this.translate('Generate certificate')}</span>
-                    </button>}
-                {R.id > 0 && R.is_passed ? null
-                  : <div className='badge badge-info mt-2'>{this.translate('A certificate can only be generated once the attendee has passed.')}</div>}
+                {this.renderCertificate()}
               </div>
             </div>
           </div>

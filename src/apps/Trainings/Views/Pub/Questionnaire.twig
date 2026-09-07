@@ -1,32 +1,100 @@
-<div style="max-width:46rem;margin:3rem auto;font-family:sans-serif;padding:0 1rem">
-  <h1 style="font-size:1.5rem;margin-bottom:1.5rem">{{ translate('Satisfaction questionnaire') }}</h1>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>{{ translate('Catalog sheet and questionnaire') }}</title>
+  <style>
+    * { font-family: sans-serif; box-sizing: border-box; }
+    body { background: #f3f4f6; margin: 0; color: #111827; }
+    .wrap { max-width: 46rem; margin: 2rem auto; padding: 0 1rem 3rem; }
+    .card { background: #fff; border-radius: 8px; padding: 1.5rem; margin-bottom: 1rem; }
+    h1 { font-size: 1.4rem; margin: 0 0 .5rem; }
+    h2 { font-size: 1.05rem; margin: 0 0 1rem; color: #1f2937; }
+    p.hint { color: #6b7280; margin: 0 0 1rem; font-size: .9rem; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
+    @media (max-width: 40rem) { .grid { grid-template-columns: 1fr; } }
+    label.field { display: block; }
+    label.field > span { display: block; font-size: .8rem; color: #4b5563; margin-bottom: .2rem; }
+    input[type=text], select, textarea { width: 100%; padding: .5rem; border: 1px solid #d1d5db; border-radius: 4px; font-size: .95rem; }
+    fieldset { border: 0; padding: .75rem 0; margin: 0; border-bottom: 1px solid #f3f4f6; }
+    legend { padding: 0; font-weight: 600; }
+    .scale { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: .4rem; }
+    .scale label { display: flex; align-items: center; gap: .3rem; }
+    button { background: #2563eb; color: #fff; border: 0; padding: .8rem 1.6rem; border-radius: 4px; font-size: 1rem; cursor: pointer; }
+    .readonly { background: #f9fafb; padding: .75rem; border-radius: 4px; font-size: .9rem; color: #4b5563; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>{{ translate('Catalog sheet and questionnaire') }}</h1>
 
-  <form method="post" action="">
-    <input type="hidden" name="t" value="{{ viewParams.token }}">
-    <input type="hidden" name="submitted" value="1">
+    <form method="post" action="">
+      <input type="hidden" name="t" value="{{ viewParams.token }}"/>
+      <input type="hidden" name="submitted" value="1"/>
 
-    <p style="color:#555">{{ translate('Rate each statement from 1 (worst) to 5 (best).') }}</p>
+      <div class="card">
+        <h2>{{ translate('Your details') }}</h2>
+        <p class="hint">{{ translate('Please check your details and complete anything that is missing. They are printed on your certificate.') }}</p>
+        <div class="readonly">{{ translate('Email') }}: {{ viewParams.worker.email }}</div>
+        <div class="grid" style="margin-top:.75rem">
+          {% for field in viewParams.workerFields %}
+            <label class="field">
+              <span>{{ viewParams.workerLabels[field] }}</span>
+              <input type="text" name="{{ field }}" value="{{ attribute(viewParams.worker, field) }}"/>
+            </label>
+          {% endfor %}
+        </div>
+      </div>
 
-    {% for code, label in viewParams.ratings %}
-      <fieldset style="border:0;padding:.75rem 0;border-bottom:1px solid #eee">
-        <legend style="padding:0;font-weight:600">{{ translate(label) }}</legend>
-        {% for i in 1..5 %}
-          <label style="margin-right:1rem">
-            <input type="radio" name="{{ code }}" value="{{ i }}" required> {{ i }}
+      <div class="card">
+        <h2>{{ translate('Catalog sheet') }}</h2>
+        <div class="grid">
+          <label class="field">
+            <span>{{ translate('Highest education obtained') }}</span>
+            <select name="education_level" required>
+              <option value="">-</option>
+              {% for value, label in viewParams.educationLevels %}
+                <option value="{{ value }}" {% if viewParams.educationSelected == value %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </label>
+          <label class="field">
+            <span>{{ translate('How was your participation financed?') }}</span>
+            <select name="financing_type" required>
+              <option value="">-</option>
+              {% for value, label in viewParams.financingTypes %}
+                <option value="{{ value }}" {% if viewParams.financingSelected == value %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>{{ translate('Satisfaction questionnaire') }}</h2>
+        <p class="hint">{{ translate('Rate each statement from 1 (worst) to 5 (best).') }}</p>
+
+        {% for code, label in viewParams.ratings %}
+          <fieldset>
+            <legend>{{ translate(label) }}</legend>
+            <div class="scale">
+              {% for i in 1..5 %}
+                <label><input type="radio" name="{{ code }}" value="{{ i }}" required/> {{ i }}</label>
+              {% endfor %}
+            </div>
+          </fieldset>
+        {% endfor %}
+
+        {% for code, label in viewParams.freeTexts %}
+          <label class="field" style="margin-top:.75rem">
+            <span>{{ translate(label) }}</span>
+            <textarea name="{{ code }}" rows="3"></textarea>
           </label>
         {% endfor %}
-      </fieldset>
-    {% endfor %}
-
-    {% for code, label in viewParams.freeTexts %}
-      <div style="padding:.75rem 0">
-        <label style="display:block;font-weight:600;margin-bottom:.25rem">{{ translate(label) }}</label>
-        <textarea name="{{ code }}" rows="3" style="width:100%;padding:.5rem;border:1px solid #ccc"></textarea>
       </div>
-    {% endfor %}
 
-    <button type="submit" style="margin-top:1rem;padding:.6rem 1.2rem;background:#4780bf;color:#fff;border:0;cursor:pointer">
-      {{ translate('Submit') }}
-    </button>
-  </form>
-</div>
+      <button type="submit">{{ translate('Submit') }}</button>
+    </form>
+  </div>
+</body>
+</html>

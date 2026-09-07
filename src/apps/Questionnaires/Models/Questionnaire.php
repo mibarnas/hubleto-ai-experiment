@@ -7,6 +7,7 @@ use Hubleto\App\Custom\Questionnaires\Questions;
 use Hubleto\Framework\Db\Column\DateTime;
 use Hubleto\Framework\Db\Column\Integer;
 use Hubleto\Framework\Db\Column\Json;
+use Hubleto\Framework\Db\Column\Lookup;
 use Hubleto\Framework\Db\Column\Text;
 
 class Questionnaire extends \Hubleto\Erp\Model
@@ -16,7 +17,9 @@ class Questionnaire extends \Hubleto\Erp\Model
   public ?string $lookupSqlValue = 'concat("Questionnaire #", {%TABLE%}.id)';
   public ?string $lookupUrlDetail = 'questionnaires/{%ID%}';
 
-  public array $relations = [];
+  public array $relations = [
+    'ATTENDEE' => [ self::BELONGS_TO, \Hubleto\App\Custom\Trainings\Models\Attendee::class, 'id_attendee', 'id' ],
+  ];
 
   public function describeColumns(): array
   {
@@ -32,7 +35,15 @@ class Questionnaire extends \Hubleto\Erp\Model
     }
 
     return array_merge(parent::describeColumns(), [
-      'date_filled' => (new DateTime($this, $this->translate('Filled on')))->setReadonly()->setDefaultVisible(),
+      // Who filled the questionnaire in. Questionnaires installs before
+      // Trainings, so the constraint is skipped -- the attendee also points
+      // back here through `id_questionnaire`.
+      'id_attendee' => (new Lookup($this, $this->translate('Attendee'), \Hubleto\App\Custom\Trainings\Models\Attendee::class))
+        ->setReadonly()
+        ->setDefaultVisible()
+        ->setProperty('disableForeignKey', true)
+      ,
+      'date_filled' => (new DateTime($this, $this->translate('Filled on')))->setReadonly()->setDefaultVisible()->setReactComponent('InputTimestamp'),
     ], $ratings, $freeTexts, [
       // The spec stores answers as JSON. The rating/free-text columns above exist
       // so per-question averages and the date-interval CSV export stay indexed
@@ -47,6 +58,16 @@ class Questionnaire extends \Hubleto\Erp\Model
     $description->ui['title'] = $this->translate('Questionnaires');
     $description->show(['header', 'fulltextSearch', 'columnSearch']);
     $description->hide(['footer']);
+    // A questionnaire only ever comes from an attendee submitting the public
+    // form, so it must not be creatable by hand.
+    $description->permissions['canCreate'] = false;
+    return $description;
+  }
+
+  public function describeForm(): \Hubleto\Framework\Description\Form
+  {
+    $description = parent::describeForm();
+    $description->permissions['canCreate'] = false;
     return $description;
   }
 }

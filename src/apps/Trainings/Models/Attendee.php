@@ -47,7 +47,7 @@ class Attendee extends \Hubleto\Erp\Model
     'WORKER' => [ self::BELONGS_TO, Worker::class, 'id_worker', 'id' ],
     'CERTIFICATE' => [ self::BELONGS_TO, Certificate::class, 'id_certificate', 'id' ],
     'QUESTIONNAIRE' => [ self::BELONGS_TO, Questionnaire::class, 'id_questionnaire', 'id' ],
-    'ORDER' => [ self::BELONGS_TO, \Hubleto\App\Custom\Orders\Models\Order::class, 'id_order', 'id' ],
+    'ORDER' => [ self::BELONGS_TO, \Hubleto\App\Custom\TrainingOrders\Models\Order::class, 'id_order', 'id' ],
   ];
 
   public function describeColumns(): array
@@ -57,8 +57,8 @@ class Attendee extends \Hubleto\Erp\Model
         ->setDefaultValue($this->router()->urlParamAsInteger('idSchedule')),
       'id_worker' => (new Lookup($this, $this->translate('Worker'), Worker::class))->setRequired()->setDefaultVisible(),
       // The order's worker list is simply its attendees -- one source of truth.
-      // Orders installs after Trainings, so the constraint is skipped.
-      'id_order' => (new Lookup($this, $this->translate('Order'), \Hubleto\App\Custom\Orders\Models\Order::class))
+      // TrainingOrders installs after Trainings, so the constraint is skipped.
+      'id_order' => (new Lookup($this, $this->translate('Order'), \Hubleto\App\Custom\TrainingOrders\Models\Order::class))
         ->setDefaultValue($this->router()->urlParamAsInteger('idOrder'))
         ->setProperty('disableForeignKey', true)
       ,
@@ -68,14 +68,16 @@ class Attendee extends \Hubleto\Erp\Model
       'date_registered' => (new Date($this, $this->translate('Date registered')))->setDefaultValue(date('Y-m-d')),
       'file_last_certificate' => (new File($this, $this->translate('Previous certificate')))->setFolderPath('previous-certificates'),
       'questionnaire_token' => (new Varchar($this, $this->translate('Questionnaire token')))->setReadonly()->setDefaultHidden(),
-      'url_questionnaire' => (new Varchar($this, $this->translate('Questionnaire link')))->setReadonly()->setDefaultHidden(),
-      'date_questionnaire_sent' => (new DateTime($this, $this->translate('Questionnaire sent on')))->setReadonly(),
-      'date_questionnaire_filled' => (new DateTime($this, $this->translate('Questionnaire filled on')))->setReadonly()->setDefaultVisible(),
+      'url_questionnaire' => (new Varchar($this, $this->translate('Catalog sheet and questionnaire link')))->setReadonly()->setDefaultHidden(),
+      'date_questionnaire_sent' => (new DateTime($this, $this->translate('Questionnaire sent on')))->setReadonly()->setReactComponent('InputTimestamp'),
+      'date_questionnaire_filled' => (new DateTime($this, $this->translate('Questionnaire filled on')))->setReadonly()->setDefaultVisible()->setReactComponent('InputTimestamp'),
+      // Kept so the links already emailed out before the catalog sheet and the
+      // questionnaire were merged into one form still resolve.
       'catalog_token' => (new Varchar($this, $this->translate('Catalog sheet token')))->setReadonly()->setDefaultHidden(),
-      'date_catalog_filled' => (new DateTime($this, $this->translate('Catalog sheet filled on')))->setReadonly(),
+      'date_catalog_filled' => (new DateTime($this, $this->translate('Catalog sheet filled on')))->setReadonly()->setReactComponent('InputTimestamp'),
       'education_level' => (new Integer($this, $this->translate('Highest education')))->setEnumValues(array_map(fn($v) => $this->translate($v), self::EDUCATION_VALUES)),
       'financing_type' => (new Integer($this, $this->translate('Financing')))->setEnumValues(array_map(fn($v) => $this->translate($v), self::FINANCING_VALUES)),
-      'date_meeting_link_sent' => (new DateTime($this, $this->translate('Meeting link sent on')))->setReadonly(),
+      'date_meeting_link_sent' => (new DateTime($this, $this->translate('Meeting link sent on')))->setReadonly()->setReactComponent('InputTimestamp'),
     ]);
   }
 
@@ -121,50 +123,16 @@ class Attendee extends \Hubleto\Erp\Model
   {
     $savedRecord = parent::onAfterCreate($savedRecord);
     $this->refreshQuestionnaireUrl($savedRecord);
-    $this->recalculateOrderTotals($savedRecord);
     return $savedRecord;
-  }
-
-  public function onAfterUpdate(array $originalRecord, array $savedRecord): array
-  {
-    $savedRecord = parent::onAfterUpdate($originalRecord, $savedRecord);
-    $this->recalculateOrderTotals($originalRecord);
-    $this->recalculateOrderTotals($savedRecord);
-    return $savedRecord;
-  }
-
-  private int $idOrderBeforeDelete = 0;
-
-  public function onBeforeDelete(int $id): int
-  {
-    $id = parent::onBeforeDelete($id);
-    $existing = $this->record->find($id);
-    $this->idOrderBeforeDelete = $existing ? (int) $existing->id_order : 0;
-    return $id;
-  }
-
-  public function onAfterDelete(int $id): int
-  {
-    $id = parent::onAfterDelete($id);
-    if ($this->idOrderBeforeDelete > 0) {
-      $this->getModel(\Hubleto\App\Custom\Orders\Models\Order::class)->recalculateTotals($this->idOrderBeforeDelete);
-    }
-    return $id;
   }
 
   /** Stored so the one-time link is visible on the record, as the ERD expects. */
   private function refreshQuestionnaireUrl(array $record): void
   {
     if (empty($record['id']) || empty($record['questionnaire_token'])) return;
-    $this->record->find($record['id'])->update([
+    $this->record->find($record['id'])?->update([
       'url_questionnaire' => $this->env()->projectUrl . '/training-questionnaire?t=' . $record['questionnaire_token'],
     ]);
-  }
-
-  private function recalculateOrderTotals(array $record): void
-  {
-    if (empty($record['id_order'])) return;
-    $this->getModel(\Hubleto\App\Custom\Orders\Models\Order::class)->recalculateTotals((int) $record['id_order']);
   }
 
 }

@@ -2,8 +2,6 @@
 
 namespace Hubleto\App\Custom\Trainings;
 
-use PhpOffice\PhpWord\TemplateProcessor;
-
 use Hubleto\Framework\Helper;
 
 use Hubleto\App\Custom\Trainings\Models\Attendee;
@@ -18,30 +16,43 @@ use Hubleto\App\Community\Documents\Models\Document;
 use Hubleto\App\Community\Documents\Models\DocumentVersion;
 use Hubleto\App\Community\Documents\Models\File as DocumentFile;
 use Hubleto\App\Community\Settings\Models\Company;
+use Hubleto\App\Community\Customers\Models\Customer;
 
 /**
- * Produces an attendee's certificate: merges the training's .docx template with
- * PhpWord, converts it to PDF with LibreOffice, files both under Documents and
- * emails the PDF to the attendee.
+ * Produces an attendee's certificate: merges the training's .docx template,
+ * converts it to PDF with LibreOffice, files both under Documents and emails
+ * the PDF to the attendee.
  *
- * Placeholders use the client's `<name>` syntax. In the document XML those are
- * escaped, so PhpWord is configured with `&lt;` / `&gt;` as macro delimiters --
- * which also lets its fixBrokenMacros handling repair placeholders Word split
- * across runs.
+ * Placeholders use the client's `<< value >>` syntax and are substituted by
+ * DocxTemplate. PhpWord's TemplateProcessor is deliberately not used: in the
+ * document XML the delimiters appear XML-escaped, and the regex PhpWord builds
+ * from `&lt;` contains `\l`, which PCRE2 rejects -- so its macro handling could
+ * never match these templates in the first place.
  */
 class CertificateGenerator extends \Hubleto\Erp\Core
 {
+  // Plain services get no context of their own, so its own messages would
+  // never be translated without this.
+  public string $translationContext = 'hubleto-app-custom-trainings-loader';
+  public string $translationContextInner = 'CertificateGenerator';
+
   /**
    * @param array $overrides Values from the "generate certificate" form.
-   * @return array{idCertificate:int, file:string, fileDocx:string, unresolvedPlaceholders:string[]}
+   * @return array{
+   *   idCertificate: int,
+   *   file: string,
+   *   fileDocx: string,
+   *   unresolvedPlaceholders: string[],
+   *   unknownPlaceholders: string[]
+   * }
    */
   public function generate(int $idAttendee, bool $sendEmail = true, array $overrides = []): array
   {
     /** @var Attendee */
     $mAttendee = $this->getModel(Attendee::class);
     $attendee = $mAttendee->record->find($idAttendee);
-    if (!$attendee) throw new \Exception('Attendee not found.');
-    if (!$attendee->is_passed) throw new \Exception('The attendee has not passed the training yet.');
+    if (!$attendee) throw new \Exception($this->translate('Attendee not found.'));
+    if (!$attendee->is_passed) throw new \Exception($this->translate('The attendee has not passed the training yet.'));
 
     /** @var Certificate */
     $mCertificate = $this->getModel(Certificate::class);
@@ -54,68 +65,49 @@ class CertificateGenerator extends \Hubleto\Erp\Core
           'file' => (string) $existing->file,
           'fileDocx' => (string) $existing->file_docx,
           'unresolvedPlaceholders' => [],
+          'unknownPlaceholders' => [],
         ];
       }
     }
 
     $schedule = $this->getModel(Schedule::class)->record->find($attendee->id_schedule);
-    if (!$schedule) throw new \Exception('Schedule not found.');
+    if (!$schedule) throw new \Exception($this->translate('Schedule not found.'));
 
     $training = $this->getModel(Training::class)->record->find($schedule->id_training);
-    if (!$training) throw new \Exception('Training not found.');
-    if (empty($training->template)) throw new \Exception('This training has no certificate template uploaded.');
+    if (!$training) throw new \Exception($this->translate('Training not found.'));
+    if (empty($training->template)) throw new \Exception($this->translate('This training has no certificate template uploaded.'));
 
     $worker = $this->getModel(Worker::class)->record->find($attendee->id_worker);
-    if (!$worker) throw new \Exception('Worker not found.');
+    if (!$worker) throw new \Exception($this->translate('Worker not found.'));
+
+    $templatePath = $this->env()->uploadFolder . '/' . $training->template;
+    if (!is_file($templatePath)) {
+      throw new \Exception($this->translate('The certificate template of this training is missing on the server.'));
+    }
 
     $company = empty($training->id_company) ? null
       : $this->getModel(Company::class)->record->find($training->id_company);
+
+    $employer = empty($worker->id_customer) ? null
+      : $this->getModel(Customer::class)->record->find($worker->id_customer);
 
     $dateExpiration = $training->interval > 0
       ? date('Y-m-d', strtotime($schedule->date_start . ' + ' . (int) $training->interval . ' years'))
       : null;
 
+    // Accreditation is a property of the issued certificate, not of the
+    // training, so it only ever comes from the generate form.
     $certificateData = array_merge([
       'internal_number' => $this->generateInternalNumber(),
       'date_internal_validity' => $dateExpiration,
-      'external_number' => $training->external_number,
       'date_external_validity' => $dateExpiration,
-      'name_validator' => $training->name_validator,
       'date_expiration' => $dateExpiration,
     ], array_filter($overrides, fn($v) => $v !== null && $v !== ''));
 
-    $vars = [
-      'date' => date('Y-m-d'),
-      'certificate_number' => $certificateData['internal_number'],
-      'internal_number' => $certificateData['internal_number'],
-      'external_number' => $certificateData['external_number'],
-      'name_validator' => $certificateData['name_validator'],
-      'valid_until' => $certificateData['date_expiration'],
-      'date_expiration' => $certificateData['date_expiration'],
-      'applicant_name' => trim($worker->title_before . ' ' . $worker->first_name . ' ' . $worker->last_name . ' ' . $worker->title_after),
-      'worker_first_name' => $worker->first_name,
-      'worker_last_name' => $worker->last_name,
-      'worker_email' => $worker->email,
-      'worker_birth_number' => $worker->birth_number,
-      'worker_workplace' => $worker->workplace_name,
-      'company_name' => $company->name ?? '',
-      'company_ico' => $company->company_id ?? '',
-      'company_dic' => $company->tax_id ?? '',
-      'company_ic_dph' => $company->vat_id ?? '',
-      'training_name' => $training->name,
-      'training_number' => $training->number,
-      'training_date' => date('Y-m-d', strtotime($schedule->date_start)),
-      'lecturer_name' => trim(($schedule->LECTURER->first_name ?? '') . ' ' . ($schedule->LECTURER->last_name ?? '')),
-      // Legacy names kept so existing templates keep resolving.
-      'ruvz_name' => $certificateData['name_validator'],
-      'ruvz_certificate_number' => $certificateData['external_number'],
-      'ruvz_date_issued' => $training->date_external_issued,
-    ];
+    $vars = $this->buildVariables($certificateData, $worker, $employer, $training, $schedule, $company);
 
-    $templatePath = $this->env()->uploadFolder . '/' . $training->template;
     $docxPath = $this->buildDestinationPath($training, $schedule, $worker);
-
-    $unresolved = $this->merge($templatePath, $vars, $docxPath);
+    $result = (new DocxTemplate($templatePath))->render($vars, $docxPath);
 
     $pdfPath = $this->getService(PdfConverter::class)->convert($docxPath);
 
@@ -146,7 +138,7 @@ class CertificateGenerator extends \Hubleto\Erp\Core
         $this->getService(\Hubleto\App\Custom\Workers\Mailer::class)->sendWithAttachment(
           $worker->email,
           $this->translate('Your training certificate'),
-          $this->translate('Please find attached your certificate for') . ' ' . htmlspecialchars($training->name) . '.',
+          $this->translate('Please find attached your certificate for') . ' ' . htmlspecialchars((string) $training->name) . '.',
           [ [ 'name' => basename($pdfPath), 'file' => $relativePdf ] ]
         );
         $mCertificate->record->find($certificate['id'])->update(['date_sent' => date('Y-m-d H:i:s')]);
@@ -159,38 +151,76 @@ class CertificateGenerator extends \Hubleto\Erp\Core
       'idCertificate' => (int) $certificate['id'],
       'file' => $relativePdf,
       'fileDocx' => $relativeDocx,
-      'unresolvedPlaceholders' => $unresolved,
+      'unresolvedPlaceholders' => $result['unresolved'],
+      'unknownPlaceholders' => $result['unknown'],
     ];
   }
 
   /**
-   * @return string[] placeholders the template asked for but we cannot supply
+   * The values a template can ask for, keyed by the canonical names in
+   * TemplateVariables.
+   *
+   * @return array<string, string>
    */
-  private function merge(string $templatePath, array $vars, string $destinationPath): array
+  private function buildVariables(
+    array $certificateData,
+    mixed $worker,
+    mixed $employer,
+    mixed $training,
+    mixed $schedule,
+    mixed $company
+  ): array
   {
-    // Normalise split runs ourselves first -- PhpWord's fixBrokenMacros() cannot
-    // handle the escaped `&lt;` delimiters (its generated regex contains \l,
-    // which PCRE2 rejects), so without this a placeholder Word broke across runs
-    // would never be substituted.
-    $normalisedPath = tempnam(sys_get_temp_dir(), 'hbl-tpl-') . '.docx';
-    (new DocxTemplate($templatePath))->writeRunMergedCopy($normalisedPath);
+    $fullName = trim(implode(' ', array_filter([
+      $worker->title_before, $worker->first_name, $worker->last_name, $worker->title_after,
+    ])));
 
-    $processor = new TemplateProcessor($normalisedPath);
-    $processor->setMacroChars('&lt;', '&gt;');
+    return [
+      // attendee
+      'applicant_name' => $fullName,
+      'first_name' => (string) $worker->first_name,
+      'last_name' => (string) $worker->last_name,
+      'title_before' => (string) $worker->title_before,
+      'title_after' => (string) $worker->title_after,
+      'birth_number' => (string) $worker->birth_number,
+      'email' => (string) $worker->email,
+      'address' => (string) $worker->address,
+      'city' => (string) $worker->city,
+      'zip' => (string) $worker->zip,
+      'workplace' => (string) $worker->workplace_name,
+      'employer' => (string) ($employer->name ?? ''),
 
-    $declared = $processor->getVariables();
+      // training
+      'training_name' => (string) $training->name,
+      'training_number' => (string) $training->number,
+      'training_date' => $this->formatDate($schedule->date_start),
+      'training_date_end' => $this->formatDate($schedule->date_end),
+      'training_interval' => (string) ($training->interval ?? ''),
 
-    foreach ($vars as $name => $value) {
-      if (!in_array($name, $declared, true)) continue;
-      $processor->setValue($name, htmlspecialchars((string) $value, ENT_XML1));
-    }
+      // certificate
+      'certificate_number' => (string) ($certificateData['internal_number'] ?? ''),
+      'external_number' => (string) ($certificateData['external_number'] ?? ''),
+      'name_validator' => (string) ($certificateData['name_validator'] ?? ''),
+      'date_issued' => date('d.m.Y'),
+      'valid_until' => $this->formatDate($certificateData['date_expiration'] ?? null),
 
-    $processor->saveAs($destinationPath);
-    @unlink($normalisedPath);
+      // provider
+      'company_name' => (string) ($company->name ?? ''),
+      'company_id' => (string) ($company->company_id ?? ''),
+      'tax_id' => (string) ($company->tax_id ?? ''),
+      'vat_id' => (string) ($company->vat_id ?? ''),
+      'company_address' => trim(implode(', ', array_filter([
+        $company->street_1 ?? '',
+        trim(($company->zip ?? '') . ' ' . ($company->city ?? '')),
+      ]))),
+    ];
+  }
 
-    // Anything the template declared that we had no value for is reported
-    // rather than silently blanked.
-    return array_values(array_diff($declared, array_keys($vars)));
+  private function formatDate(?string $value): string
+  {
+    if (empty($value)) return '';
+    $timestamp = strtotime($value);
+    return $timestamp === false ? '' : date('d.m.Y', $timestamp);
   }
 
   private function generateInternalNumber(): string
@@ -198,8 +228,18 @@ class CertificateGenerator extends \Hubleto\Erp\Core
     /** @var Certificate */
     $mCertificate = $this->getModel(Certificate::class);
     $year = date('Y');
-    $countThisYear = $mCertificate->record->where('internal_number', 'like', "AC-{$year}-%")->count();
-    return sprintf('AC-%s-%04d', $year, $countThisYear + 1);
+
+    // Counting rows would reuse a number as soon as one is deleted, so the
+    // sequence continues from the highest number actually issued this year.
+    $latest = $mCertificate->record
+      ->where('internal_number', 'like', "AC-{$year}-%")
+      ->orderByRaw('cast(substring(`internal_number`, 9) as unsigned) desc')
+      ->value('internal_number')
+    ;
+
+    $next = $latest === null ? 1 : ((int) substr((string) $latest, 8)) + 1;
+
+    return sprintf('AC-%s-%04d', $year, $next);
   }
 
   private function buildDestinationPath(mixed $training, mixed $schedule, mixed $worker): string
@@ -212,7 +252,9 @@ class CertificateGenerator extends \Hubleto\Erp\Core
     $dir = $this->env()->uploadFolder . "/certificates/{$year}/{$trainingSlug}/{$date}";
     if (!is_dir($dir)) mkdir($dir, 0775, true);
 
-    return "{$dir}/{$workerSlug}.docx";
+    // Two workers can share a name, and a certificate must never overwrite
+    // somebody else's, so the worker id is part of the file name.
+    return "{$dir}/{$workerSlug}-{$worker->id}.docx";
   }
 
   private function relativeToUploadFolder(string $absolutePath): string

@@ -25,9 +25,6 @@ class Loader extends \Hubleto\Erp\App
       'url' => 'settings/workers',
     ]);
 
-    $appMenu = $this->getService(\Hubleto\App\Community\Desktop\AppMenuManager::class);
-    $appMenu->addItem($this, 'workers', $this->translate('Workers'), 'fas fa-user-tie');
-
     $this->cronManager()->addCron(Crons\RetrainingReminders::class);
   }
 
@@ -36,12 +33,6 @@ class Loader extends \Hubleto\Erp\App
     if ($round == 1) {
       $this->getModel(Models\Worker::class)->upgradeSchema();
       $this->getModel(Models\ExpiryNotification::class)->upgradeSchema();
-    }
-    if ($round == 2) {
-      // do something in the 2nd round, if required
-    }
-    if ($round == 3) {
-      // do something in the 3rd round, if required
     }
   }
 

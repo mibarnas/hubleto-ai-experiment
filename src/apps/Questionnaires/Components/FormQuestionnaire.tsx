@@ -1,5 +1,6 @@
 import React from 'react'
-import FormExtended, { FormExtendedProps, FormExtendedState } from '@hubleto/react-ui/ext/FormExtended';
+import { FormExtendedProps, FormExtendedState } from '@hubleto/react-ui/ext/FormExtended';
+import FormAlgo from '../../Trainings/Components/FormAlgo';
 
 /** Mirrors Hubleto\App\Custom\Questionnaires\Questions. */
 export const RATING_QUESTIONS = [
@@ -14,9 +15,9 @@ export const FREE_TEXT_QUESTIONS = ['txt_liked_most', 'txt_improve', 'txt_recomm
 export interface FormQuestionnaireProps extends FormExtendedProps { }
 export interface FormQuestionnaireState extends FormExtendedState { }
 
-export default class FormQuestionnaire<P, S> extends FormExtended<FormQuestionnaireProps, FormQuestionnaireState> {
+export default class FormQuestionnaire<P, S> extends FormAlgo<FormQuestionnaireProps, FormQuestionnaireState> {
   static defaultProps: any = {
-    ...FormExtended.defaultProps,
+    ...FormAlgo.defaultProps,
     icon: 'fas fa-clipboard-question',
     model: 'Hubleto/App/Custom/Questionnaires/Models/Questionnaire',
   }
@@ -34,8 +35,8 @@ export default class FormQuestionnaire<P, S> extends FormExtended<FormQuestionna
     this.state = this.getStateFromProps(props);
   }
 
-  getTabsLeft() {
-    return [ { uid: 'default', title: <b>{this.translate('Questionnaire')}</b> } ];
+  getMainTab() {
+    return { uid: 'default', title: <b>{this.translate('Questionnaire')}</b> };
   }
 
   getRecordFormUrl(): string {
@@ -56,6 +57,7 @@ export default class FormQuestionnaire<P, S> extends FormExtended<FormQuestionna
           <div className='flex-1 card'>
             <div className='card-header'>{this.translate('Ratings (1 = worst, 5 = best)')}</div>
             <div className='card-body'>
+              {this.inputWrapper('id_attendee')}
               {this.inputWrapper('date_filled')}
               {this.divider(this.translate('Questions'))}
               {RATING_QUESTIONS.map((q) => <div key={q}>{this.inputWrapper(q)}</div>)}

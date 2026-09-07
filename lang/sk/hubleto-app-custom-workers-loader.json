@@ -1,0 +1,83 @@
+{
+  "Components\\FormWorker": {
+    "Address": "Adresa",
+    "Certificates": "Osvedčenia",
+    "Employment": "Zamestnanie",
+    "New worker": "Nový pracovník",
+    "Next retraining": "Ďalšie preškolenie",
+    "Orders": "Objednávky",
+    "Other": "Iné",
+    "Personal details": "Osobné údaje",
+    "Retrain by": "Preškoliť do",
+    "Retraining overdue since": "Preškolenie je po termíne od",
+    "Schedules": "Termíny",
+    "This worker has no certificate with an expiry date yet.": "Tento pracovník zatiaľ nemá osvedčenie s dátumom platnosti.",
+    "Training": "Školenie",
+    "Trainings": "Školenia",
+    "Worker": "Pracovník"
+  },
+  "Controllers\\Settings": {
+    "Settings": "Nastavenia",
+    "This app has no settings of its own yet.": "Táto aplikácia zatiaľ nemá vlastné nastavenia.",
+    "Workers": "Pracovníci"
+  },
+  "Controllers\\Workers": {
+    "Workers": "Pracovníci"
+  },
+  "ExpiryNotifier": {
+    "Dear": "Dobrý deň",
+    "Retraining reminder could not be delivered": "Upozornenie na preškolenie sa nepodarilo doručiť",
+    "The following workers need retraining in": "Preškolenie potrebujú títo pracovníci v roku",
+    "Workers with training validity ending this year": "Pracovníci, ktorým sa tento rok končí platnosť školenia",
+    "Your training certificate is expiring soon": "Platnosť vášho osvedčenia sa čoskoro končí",
+    "your certificate is valid until": "vaše osvedčenie je platné do"
+  },
+  "Mailer": {
+    "No mail account is configured. Create one under Mail > Accounts before sending emails.": "Nie je nastavený žiadny e-mailový účet. Pred odosielaním e-mailov ho vytvorte v sekcii Pošta > Účty."
+  },
+  "Models\\ExpiryNotification": {
+    "1 month before expiry (individual)": "1 mesiac pred vypršaním (jednotlivec)",
+    "6 months before expiry (individual)": "6 mesiacov pred vypršaním (jednotlivec)",
+    "Certificate": "Osvedčenie",
+    "Company": "Firma",
+    "Delivered": "Doručené",
+    "Error": "Chyba",
+    "Kind": "Druh",
+    "Sent on": "Odoslané dňa",
+    "Sent to": "Odoslané na",
+    "Worker": "Pracovník",
+    "Yearly digest (company)": "Ročný súhrn (firma)"
+  },
+  "Models\\Worker": {
+    "Add Worker": "Pridať pracovníka",
+    "Birth number": "Rodné číslo",
+    "City": "Mesto",
+    "Country": "Štát",
+    "Email": "E-mail",
+    "Employer company": "Zamestnávateľ",
+    "Female": "Žena",
+    "First name": "Meno",
+    "Gender": "Pohlavie",
+    "Last name": "Priezvisko",
+    "Male": "Muž",
+    "Manager": "Manažér",
+    "Next retraining date": "Dátum ďalšieho preškolenia",
+    "Note": "Poznámka",
+    "Owner": "Vlastník",
+    "Phone": "Telefón",
+    "Street": "Ulica",
+    "Title after name": "Titul za menom",
+    "Title before name": "Titul pred menom",
+    "Training to retake": "Školenie na zopakovanie",
+    "Unspecified": "Neuvedené",
+    "Workplace ZIP": "PSČ pracoviska",
+    "Workplace city": "Mesto pracoviska",
+    "Workplace name": "Pracovisko",
+    "Workplace street": "Ulica pracoviska",
+    "ZIP": "PSČ"
+  },
+  "manifest": {
+    "Archive of workers registered for AlgoCorp trainings.": "Archív pracovníkov prihlásených na školenia AlgoCorp.",
+    "Workers": "Pracovníci"
+  }
+}

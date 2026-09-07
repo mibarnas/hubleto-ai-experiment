@@ -1,0 +1,37 @@
+{
+  "Components\\FormQuestionnaire": {
+    "Comments": "Komentáre",
+    "Not filled in yet": "Zatiaľ nevyplnené",
+    "Questionnaire": "Dotazník",
+    "Questions": "Otázky",
+    "Ratings (1 = worst, 5 = best)": "Hodnotenia (1 = najhoršie, 5 = najlepšie)",
+    "Satisfaction questionnaire": "Dotazník spokojnosti"
+  },
+  "Controllers\\Questionnaires": {
+    "Questionnaires": "Dotazníky"
+  },
+  "Models\\Questionnaire": {
+    "Attendee": "Uchádzač",
+    "Filled on": "Vyplnené dňa",
+    "I would recommend this course to others": "Kurz by som odporučil ďalším",
+    "Information about the course was available and understandable": "Informácie o kurze boli dostupné a zrozumiteľné",
+    "Overall satisfaction with the course": "Celková spokojnosť s kurzom",
+    "Questionnaires": "Dotazníky",
+    "Raw answers (JSON)": "Surové odpovede (JSON)",
+    "Recommendations for future courses": "Odporúčania pre ďalšie kurzy",
+    "Technical support (online platform) was satisfactory": "Technická podpora (online platforma) bola vyhovujúca",
+    "The acquired knowledge is useful to me": "Získané vedomosti sú pre mňa užitočné",
+    "The course content was understandable and well-structured": "Obsah kurzu bol zrozumiteľný a dobre štruktúrovaný",
+    "The course met my expectations": "Kurz splnil moje očakávania",
+    "The lecturer communicated effectively and answered questions": "Lektor komunikoval zrozumiteľne a odpovedal na otázky",
+    "The lecturer created a stimulating and supportive environment": "Lektor vytvoril podnetné a ústretové prostredie",
+    "The lecturer was an expert on the topic": "Lektor bol odborníkom na danú tému",
+    "The organization of the course was effective": "Organizácia kurzu bola efektívna",
+    "What did you like most about the course?": "Čo sa vám na kurze páčilo najviac?",
+    "What would you suggest improving?": "Čo by ste navrhovali zlepšiť?"
+  },
+  "manifest": {
+    "Questionnaires": "Dotazníky",
+    "Satisfaction questionnaires filled in by training attendees.": "Dotazníky spokojnosti vyplnené uchádzačmi o školenie."
+  }
+}

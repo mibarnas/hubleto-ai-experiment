@@ -2,7 +2,6 @@
 
 namespace Hubleto\App\Custom\Trainings\Models;
 
-use Hubleto\Framework\Db\Column\Boolean;
 use Hubleto\Framework\Db\Column\Date;
 use Hubleto\Framework\Db\Column\Decimal;
 use Hubleto\Framework\Db\Column\File;
@@ -13,8 +12,6 @@ use Hubleto\Framework\Db\Column\Text;
 use Hubleto\Framework\Db\Column\Varchar;
 
 use Hubleto\App\Community\Settings\Models\Company;
-use Hubleto\App\Community\Settings\Models\Currency;
-use Hubleto\App\Community\Auth\Models\User;
 
 class Training extends \Hubleto\Erp\Model
 {
@@ -26,9 +23,6 @@ class Training extends \Hubleto\Erp\Model
 
   public array $relations = [
     'COMPANY' => [ self::BELONGS_TO, Company::class, 'id_company', 'id' ],
-    'CURRENCY' => [ self::BELONGS_TO, Currency::class, 'id_currency', 'id' ],
-    'OWNER' => [ self::BELONGS_TO, User::class, 'id_owner', 'id' ],
-    'MANAGER' => [ self::BELONGS_TO, User::class, 'id_manager', 'id' ],
     'SCHEDULES' => [ self::HAS_MANY, Schedule::class, 'id_training', 'id' ],
   ];
 
@@ -38,7 +32,6 @@ class Training extends \Hubleto\Erp\Model
       'name' => (new Varchar($this, $this->translate('Training name')))->setRequired()->setDefaultVisible()->setCssClass('text-2xl text-primary')->setIcon(self::COLUMN_NAME_DEFAULT_ICON),
       'number' => (new Varchar($this, $this->translate('Training number')))->setDefaultVisible(),
       'price' => (new Decimal($this, $this->translate('Price per person')))->setDecimals(2)->setDefaultVisible(),
-      'id_currency' => (new Lookup($this, $this->translate('Currency'), Currency::class))->setDefaultVisible(),
       'interval' => (new Integer($this, $this->translate('Retraining interval (years)')))->setDefaultVisible(),
       'id_company' => (new Lookup($this, $this->translate('Company'), Company::class))->setDefaultVisible(),
       'template' => (new File($this, $this->translate('Certificate template (.docx)')))
@@ -46,17 +39,11 @@ class Training extends \Hubleto\Erp\Model
         ->setRenamePattern('{%FILENAME_ASCII%}-{%TS%}.{%EXT%}')
         ->setDefaultVisible()
       ,
-      'template_params' => (new Json($this, $this->translate('Discovered template parameters')))->setReadonly(),
-      // Accreditation defaults copied onto each certificate at generation time.
-      'name_validator' => (new Varchar($this, $this->translate('Accreditation authority (default)'))),
-      'external_number' => (new Varchar($this, $this->translate('External certificate number (default)'))),
-      'date_external_issued' => (new Date($this, $this->translate('External issue date (default)'))),
-      'is_active' => (new Boolean($this, $this->translate('Active')))->setDefaultVisible()->setDefaultValue(true),
+      // Result of DocxTemplate::analyse(), refreshed whenever the template
+      // changes: which values the template uses, which it asks for but we
+      // cannot supply, and which required ones it is missing.
+      'template_params' => (new Json($this, $this->translate('Template check')))->setReadonly()->setDefaultHidden(),
       'description' => (new Text($this, $this->translate('Description'))),
-      'id_owner' => (new Lookup($this, $this->translate('Owner'), User::class))->setReactComponent('InputUserSelect')
-        ->setDefaultValue($this->getService(\Hubleto\Framework\AuthProvider::class)->getUserId()),
-      'id_manager' => (new Lookup($this, $this->translate('Manager'), User::class))->setReactComponent('InputUserSelect'),
-      'shared_with' => (new Json($this, $this->translate('Shared with')))->setReactComponent('InputSharedWith')->setTableCellRenderer('TableCellRendererSharedWith'),
     ]);
   }
 
@@ -86,26 +73,49 @@ class Training extends \Hubleto\Erp\Model
   }
 
   /**
-   * Scans the uploaded certificate template for `<placeholder>` parameters and
-   * stores the discovered list, so the client can replace templates without
-   * any code change.
+   * Scans the uploaded certificate template for `<< value >>` placeholders and
+   * stores the analysis, so the client can replace templates without any code
+   * change and is told straight away when a template is wrong.
    */
   public function refreshTemplateParams(int $idTraining): void
   {
     $record = $this->record->find($idTraining);
-    if (!$record || empty($record->template)) return;
+    if (!$record) return;
+
+    if (empty($record->template)) {
+      $this->record->find($idTraining)->update(['template_params' => null]);
+      return;
+    }
 
     $filePath = $this->env()->uploadFolder . '/' . $record->template;
-    if (!is_file($filePath)) return;
+
+    if (!is_file($filePath)) {
+      $this->storeTemplateError($idTraining, 'The uploaded template file could not be found on the server.');
+      return;
+    }
 
     try {
-      $params = (new \Hubleto\App\Custom\Trainings\DocxTemplate($filePath))->scanPlaceholders();
+      $analysis = (new \Hubleto\App\Custom\Trainings\DocxTemplate($filePath))->analyse();
       $this->record->find($idTraining)->update([
-        'template_params' => json_encode(array_values($params)),
+        'template_params' => json_encode($analysis, JSON_UNESCAPED_UNICODE),
       ]);
     } catch (\Throwable $e) {
       $this->logger()->error('Failed to scan certificate template placeholders: ' . $e->getMessage());
+      $this->storeTemplateError($idTraining, $e->getMessage());
     }
+  }
+
+  private function storeTemplateError(int $idTraining, string $message): void
+  {
+    $this->record->find($idTraining)?->update([
+      'template_params' => json_encode([
+        'found' => [],
+        'unknown' => [],
+        'missingRequired' => [],
+        'raw' => [],
+        'error' => $message,
+      ], JSON_UNESCAPED_UNICODE),
+    ]);
   }
 
 }

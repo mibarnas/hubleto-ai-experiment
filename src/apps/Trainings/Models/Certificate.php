@@ -39,7 +39,7 @@ class Certificate extends \Hubleto\Erp\Model
       'file' => (new Varchar($this, $this->translate('Certificate (PDF)')))->setReadonly()->setDefaultVisible(),
       'file_docx' => (new Varchar($this, $this->translate('Certificate (source .docx)')))->setReadonly(),
       'id_document' => (new Lookup($this, $this->translate('Document'), Document::class))->setReadonly()->setDefaultVisible(),
-      'date_sent' => (new DateTime($this, $this->translate('Sent to attendee on')))->setReadonly()->setDefaultVisible(),
+      'date_sent' => (new DateTime($this, $this->translate('Sent to attendee on')))->setReadonly()->setDefaultVisible()->setReactComponent('InputTimestamp'),
     ]);
   }
 
@@ -50,27 +50,6 @@ class Certificate extends \Hubleto\Erp\Model
     $description->show(['header', 'fulltextSearch', 'columnSearch', 'moreActionsButton']);
     $description->hide(['footer']);
     return $description;
-  }
-
-  public function onAfterCreate(array $savedRecord): array
-  {
-    $savedRecord = parent::onAfterCreate($savedRecord);
-    $this->recalculateWorkerRetraining($savedRecord);
-    return $savedRecord;
-  }
-
-  public function onAfterUpdate(array $originalRecord, array $savedRecord): array
-  {
-    $savedRecord = parent::onAfterUpdate($originalRecord, $savedRecord);
-    $this->recalculateWorkerRetraining($savedRecord);
-    return $savedRecord;
-  }
-
-  private function recalculateWorkerRetraining(array $record): void
-  {
-    if (empty($record['id_worker'])) return;
-    $this->getService(\Hubleto\App\Custom\Workers\RetrainingCalculator::class)
-      ->recalculate((int) $record['id_worker']);
   }
 
 }

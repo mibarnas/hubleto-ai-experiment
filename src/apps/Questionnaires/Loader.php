@@ -12,9 +12,6 @@ class Loader extends \Hubleto\Erp\App
     $this->router()->get([
       '/^questionnaires(\/(?<recordId>\d+))?\/?$/' => Controllers\Questionnaires::class,
     ]);
-
-    $appMenu = $this->getService(\Hubleto\App\Community\Desktop\AppMenuManager::class);
-    $appMenu->addItem($this, 'questionnaires', $this->translate('Questionnaires'), 'fas fa-clipboard-question');
   }
 
   public function installApp(int $round): void

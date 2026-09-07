@@ -4,22 +4,15 @@ namespace Hubleto\App\Custom\Workers\Extendibles;
 
 class AppMenu extends \Hubleto\Framework\Extendible
 {
-
-  // Add your app's menu items here
-
-  // public function getItems(): array
-  // {
-  //   return [
-  //     [
-  //       'app' => $this->app,
-  //       'url' => '...',
-  //       'title' => $this->app->translate('...'),
-  //       'icon' => '...',
-  //     ],
-  //   ];
-  // }
-
-  // Hint: Search for 'collectExtendibles' in the codebase to learn
-  // what kind of integrations are available.
-
+  public function getItems(): array
+  {
+    return [
+      [
+        'app' => $this->app,
+        'url' => 'workers',
+        'title' => $this->app->translate('Workers'),
+        'icon' => 'fas fa-user-tie',
+      ],
+    ];
+  }
 }

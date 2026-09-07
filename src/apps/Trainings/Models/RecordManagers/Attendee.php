@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 use Hubleto\App\Custom\Workers\Models\RecordManagers\Worker;
 use Hubleto\App\Custom\Questionnaires\Models\RecordManagers\Questionnaire;
-use Hubleto\App\Custom\Orders\Models\RecordManagers\Order;
+use Hubleto\App\Custom\TrainingOrders\Models\RecordManagers\Order;
 
 class Attendee extends \Hubleto\Erp\RecordManager
 {

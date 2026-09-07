@@ -3,10 +3,14 @@
 namespace Hubleto\App\Custom\Workers\Models\RecordManagers;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 use Hubleto\App\Community\Customers\Models\RecordManagers\Customer;
 use Hubleto\App\Community\Settings\Models\RecordManagers\Country;
 use Hubleto\App\Community\Auth\Models\RecordManagers\User;
+use Hubleto\App\Custom\Trainings\Models\RecordManagers\Attendee;
+use Hubleto\App\Custom\Trainings\Models\RecordManagers\Certificate;
+use Hubleto\App\Custom\TrainingOrders\Models\RecordManagers\Order;
 
 class Worker extends \Hubleto\Erp\RecordManager
 {
@@ -32,6 +36,26 @@ class Worker extends \Hubleto\Erp\RecordManager
     return $this->belongsTo(User::class, 'id_manager', 'id');
   }
 
+  public function ATTENDEES(): HasMany
+  {
+    return $this->hasMany(Attendee::class, 'id_worker', 'id');
+  }
+
+  public function CERTIFICATES(): HasMany
+  {
+    return $this->hasMany(Certificate::class, 'id_worker', 'id');
+  }
+
+  public function ORDERS(): HasMany
+  {
+    return $this->hasMany(Order::class, 'id_worker', 'id');
+  }
+
+  public function EXPIRY_NOTIFICATIONS(): HasMany
+  {
+    return $this->hasMany(ExpiryNotification::class, 'id_worker', 'id');
+  }
+
   public function prepareReadQuery(mixed $query = null, int $level = 0, array|null $includeRelations = null): mixed
   {
     $query = parent::prepareReadQuery($query, $level, $includeRelations);
@@ -44,5 +68,4 @@ class Worker extends \Hubleto\Erp\RecordManager
 
     return $query;
   }
-
 }

@@ -5,14 +5,11 @@ namespace Hubleto\App\Custom\Trainings\Models\RecordManagers;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-use Hubleto\App\Community\Auth\Models\RecordManagers\User;
-
 class Schedule extends \Hubleto\Erp\RecordManager
 {
   public $table = 'schedules';
 
   public function TRAINING(): BelongsTo { return $this->belongsTo(Training::class, 'id_training', 'id'); }
-  public function LECTURER(): BelongsTo { return $this->belongsTo(User::class, 'id_lecturer', 'id'); }
   public function ATTENDEES(): HasMany { return $this->hasMany(Attendee::class, 'id_schedule', 'id'); }
 
   public function prepareReadQuery(mixed $query = null, int $level = 0, array|null $includeRelations = null): mixed

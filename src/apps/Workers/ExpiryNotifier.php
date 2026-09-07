@@ -18,6 +18,9 @@ use Hubleto\App\Community\Contacts\Models\Contact;
  */
 class ExpiryNotifier extends \Hubleto\Erp\Core
 {
+  public string $translationContext = 'hubleto-app-custom-workers-loader';
+  public string $translationContextInner = 'ExpiryNotifier';
+
   public function run(\DateTimeImmutable $today): void
   {
     $this->runIndividualReminders($today);
@@ -125,7 +128,9 @@ class ExpiryNotifier extends \Hubleto\Erp\Core
     $mAttendee = $this->getModel(\Hubleto\App\Custom\Trainings\Models\Attendee::class);
     return $mAttendee->record
       ->where('id_worker', $idWorker)
-      ->whereHas('TRAINING_DATE', function ($q) use ($idTraining) {
+      // The attendee's relation to its training date is SCHEDULE; the old name
+      // did not exist, so this check threw instead of suppressing the reminder.
+      ->whereHas('SCHEDULE', function ($q) use ($idTraining) {
         $q->where('id_training', $idTraining)->where('date_start', '>=', date('Y-m-d H:i:s'));
       })
       ->exists();

@@ -1,16 +1,17 @@
 import React from 'react'
-import FormExtended, { FormExtendedProps, FormExtendedState } from '@hubleto/react-ui/ext/FormExtended';
+import { FormExtendedProps, FormExtendedState } from '@hubleto/react-ui/ext/FormExtended';
+import FormAlgo from '../../Trainings/Components/FormAlgo';
 import TableAttendees from '../../Trainings/Components/TableAttendees';
 import TableSchedules from '../../Trainings/Components/TableSchedules';
 import TableCertificates from '../../Trainings/Components/TableCertificates';
-import TableOrders from '../../Orders/Components/TableOrders';
+import TableOrders from '../../TrainingOrders/Components/TableOrders';
 
 export interface FormWorkerProps extends FormExtendedProps { }
 export interface FormWorkerState extends FormExtendedState { }
 
-export default class FormWorker<P, S> extends FormExtended<FormWorkerProps, FormWorkerState> {
+export default class FormWorker<P, S> extends FormAlgo<FormWorkerProps, FormWorkerState> {
   static defaultProps: any = {
-    ...FormExtended.defaultProps,
+    ...FormAlgo.defaultProps,
     icon: 'fas fa-user-tie',
     model: 'Hubleto/App/Custom/Workers/Models/Worker',
   }
@@ -28,9 +29,12 @@ export default class FormWorker<P, S> extends FormExtended<FormWorkerProps, Form
     this.state = this.getStateFromProps(props);
   }
 
-  getTabsLeft() {
+  getMainTab() {
+    return { uid: 'default', title: <b>{this.translate('Worker')}</b> };
+  }
+
+  getRelatedTabs() {
     return [
-      { uid: 'default', title: <b>{this.translate('Worker')}</b> },
       { uid: 'trainings', title: this.translate('Trainings') },
       { uid: 'schedules', title: this.translate('Schedules') },
       { uid: 'certificates', title: this.translate('Certificates') },
@@ -51,8 +55,30 @@ export default class FormWorker<P, S> extends FormExtended<FormWorkerProps, Form
     </>;
   }
 
-  renderNotSavedYet(): JSX.Element {
-    return <div className='badge badge-info'>{this.translate('First save the worker.')}</div>;
+  /**
+   * Read straight from the worker's certificates every time the form is
+   * opened, so it cannot disagree with the Certificates tab below it.
+   */
+  renderNextRetraining(): JSX.Element {
+    const R = this.state.record;
+
+    if (!R.virt_date_next_retraining) {
+      return <div className='badge badge-info'>{this.translate('This worker has no certificate with an expiry date yet.')}</div>;
+    }
+
+    const expiresOn = new Date(R.virt_date_next_retraining);
+    const isOverdue = expiresOn.getTime() < Date.now();
+
+    return <div className='flex flex-col gap-1'>
+      <div className={'badge ' + (isOverdue ? 'badge-danger' : 'badge-success')}>
+        {isOverdue ? this.translate('Retraining overdue since') : this.translate('Retrain by')}
+        {': '}
+        {R.virt_date_next_retraining}
+      </div>
+      {R.virt_next_retraining_training
+        ? <div className='text-sm'>{this.translate('Training')}: <b>{R.virt_next_retraining_training}</b></div>
+        : null}
+    </div>;
   }
 
   renderTab(tabUid: string) {
@@ -88,8 +114,7 @@ export default class FormWorker<P, S> extends FormExtended<FormWorkerProps, Form
               {this.inputWrapper('workplace_city')}
               {this.inputWrapper('workplace_zip')}
               {this.divider(this.translate('Next retraining'))}
-              {this.inputWrapper('date_next_retraining')}
-              {this.inputWrapper('id_next_retraining_training')}
+              {this.renderNextRetraining()}
               {this.divider(this.translate('Other'))}
               {this.inputWrapper('note')}
               {this.inputWrapper('id_owner')}
@@ -99,24 +124,16 @@ export default class FormWorker<P, S> extends FormExtended<FormWorkerProps, Form
         </div>;
 
       case 'trainings':
-        return R.id > 0
-          ? <TableAttendees uid={this.props.uid + '_table_attendees'} parentForm={this} idWorker={R.id} customEndpointParams={{ idWorker: R.id }}/>
-          : this.renderNotSavedYet();
+        return <TableAttendees uid={this.props.uid + '_table_attendees'} parentForm={this} idWorker={R.id} customEndpointParams={{ idWorker: R.id }}/>;
 
       case 'schedules':
-        return R.id > 0
-          ? <TableSchedules uid={this.props.uid + '_table_schedules'} parentForm={this} idWorker={R.id} readonly={true} customEndpointParams={{ idWorker: R.id }}/>
-          : this.renderNotSavedYet();
+        return <TableSchedules uid={this.props.uid + '_table_schedules'} parentForm={this} idWorker={R.id} readonly={true} customEndpointParams={{ idWorker: R.id }}/>;
 
       case 'certificates':
-        return R.id > 0
-          ? <TableCertificates uid={this.props.uid + '_table_certificates'} parentForm={this} idWorker={R.id} customEndpointParams={{ idWorker: R.id }}/>
-          : this.renderNotSavedYet();
+        return <TableCertificates uid={this.props.uid + '_table_certificates'} parentForm={this} idWorker={R.id} customEndpointParams={{ idWorker: R.id }}/>;
 
       case 'orders':
-        return R.id > 0
-          ? <TableOrders uid={this.props.uid + '_table_orders'} parentForm={this} idWorker={R.id} customEndpointParams={{ idWorker: R.id }}/>
-          : this.renderNotSavedYet();
+        return <TableOrders uid={this.props.uid + '_table_orders'} parentForm={this} idWorker={R.id} customEndpointParams={{ idWorker: R.id }}/>;
 
       default:
         return super.renderTab(tabUid);

@@ -8,10 +8,15 @@ import TableAttendees from "./Components/TableAttendees"
 import FormAttendee from "./Components/FormAttendee"
 import TableCertificates from "./Components/TableCertificates"
 import FormCertificate from "./Components/FormCertificate"
+import InputTimestamp from "./Components/InputTimestamp"
 
 class TrainingsApp extends App {
   init() {
     super.init();
+
+    // Replacement for the stock datetime input; selected per column with
+    // `setReactComponent('InputTimestamp')`.
+    globalThis.hubleto.registerReactComponent('InputTimestamp', InputTimestamp);
 
     globalThis.hubleto.registerReactComponent('TrainingsTableTrainings', TableTrainings);
     globalThis.hubleto.registerReactComponent('TrainingsFormTraining', FormTraining);

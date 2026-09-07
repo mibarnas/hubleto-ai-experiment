@@ -10,15 +10,16 @@ class Loader extends \Hubleto\Erp\App
     parent::init();
 
     $this->router()->get([
-      '/^trainings\/api\/get-statistics\/?$/' => Controllers\Api\GetStatistics::class,
       '/^trainings\/api\/send-meeting-link\/?$/' => Controllers\Api\SendMeetingLink::class,
       '/^trainings\/api\/send-questionnaire\/?$/' => Controllers\Api\SendQuestionnaire::class,
       '/^trainings\/api\/generate-certificate\/?$/' => Controllers\Api\GenerateCertificate::class,
-      '/^trainings\/statistics\/export-csv\/?$/' => Controllers\ExportStatisticsCsv::class,
+      '/^trainings\/api\/check-template\/?$/' => Controllers\Api\CheckTemplate::class,
       '/^trainings\/certificates\/download\/?$/' => Controllers\DownloadCertificate::class,
 
+      // One public form covering the catalog sheet and the questionnaire. The
+      // old catalog-sheet URL is kept so links already emailed out still work.
       '/^training-questionnaire\/?$/' => Controllers\Pub\FillQuestionnaire::class,
-      '/^training-catalog-sheet\/?$/' => Controllers\Pub\CatalogSheet::class,
+      '/^training-catalog-sheet\/?$/' => Controllers\Pub\FillQuestionnaire::class,
 
       '/^trainings\/schedules\/add\/?$/' => ['controller' => Controllers\Schedules::class, 'vars' => ['recordId' => -1]],
       '/^trainings\/schedules(\/(?<recordId>\d+))?\/?$/' => Controllers\Schedules::class,
@@ -36,12 +37,6 @@ class Loader extends \Hubleto\Erp\App
       'icon' => 'fas fa-chalkboard-user',
       'url' => 'settings/trainings',
     ]);
-
-    $appMenu = $this->getService(\Hubleto\App\Community\Desktop\AppMenuManager::class);
-    $appMenu->addItem($this, 'trainings', $this->translate('Trainings'), 'fas fa-chalkboard-user');
-    $appMenu->addItem($this, 'trainings/schedules', $this->translate('Schedules'), 'fas fa-calendar-days');
-    $appMenu->addItem($this, 'trainings/attendees', $this->translate('Attendees'), 'fas fa-user-graduate');
-    $appMenu->addItem($this, 'trainings/certificates', $this->translate('Certificates'), 'fas fa-certificate');
   }
 
   public function installApp(int $round): void

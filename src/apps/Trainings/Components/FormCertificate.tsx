@@ -1,12 +1,13 @@
 import React from 'react'
-import FormExtended, { FormExtendedProps, FormExtendedState } from '@hubleto/react-ui/ext/FormExtended';
+import { FormExtendedProps, FormExtendedState } from '@hubleto/react-ui/ext/FormExtended';
+import FormAlgo from './FormAlgo';
 
 export interface FormCertificateProps extends FormExtendedProps { }
 export interface FormCertificateState extends FormExtendedState { }
 
-export default class FormCertificate<P, S> extends FormExtended<FormCertificateProps, FormCertificateState> {
+export default class FormCertificate<P, S> extends FormAlgo<FormCertificateProps, FormCertificateState> {
   static defaultProps: any = {
-    ...FormExtended.defaultProps,
+    ...FormAlgo.defaultProps,
     icon: 'fas fa-certificate',
     model: 'Hubleto/App/Custom/Trainings/Models/Certificate',
   }
@@ -24,8 +25,8 @@ export default class FormCertificate<P, S> extends FormExtended<FormCertificateP
     this.state = this.getStateFromProps(props);
   }
 
-  getTabsLeft() {
-    return [ { uid: 'default', title: <b>{this.translate('Certificate')}</b> } ];
+  getMainTab() {
+    return { uid: 'default', title: <b>{this.translate('Certificate')}</b> };
   }
 
   getRecordFormUrl(): string {
